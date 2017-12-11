@@ -48,16 +48,20 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
 
     ii=0;
 
+    // CG: ~~We begin with the edges a-b, c-d, and e-f~~
+    // This is incorrect, the first
+    //  edge triplet should be:
+    //  a-b, b-c, c-d ! (?)
+
     b= V->route[r].start;
     a=VRPH_MAX(V->pred_array[b],0);
-    // edge 1 is a-b
-    c=VRPH_MAX(V->next_array[b],0);
+    c = b;
     if(c==VRPH_DEPOT)
         return false;
     d=VRPH_MAX(V->next_array[c],0);
     if(d==VRPH_DEPOT)
         return false;
-    e=VRPH_MAX(V->next_array[d],0);
+    e = d;
     if(e==VRPH_DEPOT)
         return false;
     f=VRPH_MAX(V->next_array[e],0);
@@ -65,12 +69,22 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
         return false;
 
     int a_end, c_end, e_end;
-    // Set the a_end to 3 hops back from the route's end since
+    // CG: ~~Set the a_end to 3 hops back from the route's end since
     // we will have searched all possible moves by this point.
-    // This is ugly...
-    a_end = VRPH_MAX(VRPH_DEPOT,V->pred_array[VRPH_MAX(VRPH_DEPOT,V->pred_array[VRPH_MAX(VRPH_DEPOT, V->pred_array[V->route[r].end])])]);
-    c_end = VRPH_MAX(VRPH_DEPOT, V->pred_array[V->route[r].end]);
-    e_end = V->route[r].end;
+    // This is ugly...~~
+    //
+    // ...and wrong. In addition, the 
+    // as ThreeOpt::move does not update
+    //  route[r].end nor route[r].start
+    //  which makes subsequent end marks
+    //  be hit and miss. normalize_route_numbers()
+    //  can be used to update them, but 
+    //  TODO: a better way would be to update
+    //  the route start and end in 
+    //  if needed ThreeOpt::move.
+    a_end = VRPH_MAX(VRPH_DEPOT, V->pred_array[V->route[r].end]);
+    c_end = VRPH_MAX(VRPH_DEPOT, V->route[r].end);
+    e_end = VRPH_DEPOT;
 
     int *old_sol=NULL;
     if(rules & VRPH_TABU)
@@ -80,55 +94,22 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
         V->export_solution_buff(old_sol);
     }
 
+	// CG: ~~Evaluate the first move and then enter the loop~~
+    //Do not evaluate the first move separately, do it in the loop.
 
-
-    // Evaluate the first move and then enter the loop
-    // We begin with the edges a-b, c-d, and e-f
-    if(evaluate(V,a,b,c,d,e,f,rules,&M)==true)
+    b = V->route[r].start;
+    a = VRPH_MAX(V->pred_array[b], 0);
+    do
     {
-        if(accept_type==VRPH_FIRST_ACCEPT || ((accept_type==VRPH_LI_ACCEPT)&&M.savings<-VRPH_EPSILON))
-        {
-            // Make the move
-            if(move(V, &M)==false)
-                report_error("%s: move error 1\n",__FUNCTION__);
-            else
-            {
-                if(!(rules & VRPH_TABU))
-                    return true;
-                else
-                {
-                    // Check VRPH_TABU status of move - return true if its ok
-                    // or revert to old_sol if not and continue to search.
-                    if(V->check_tabu_status(&M, old_sol))
-                    {
-                        delete [] old_sol;
-                        return true; // The move was ok
-                    }
-                    // else we reverted back - continue the search for a move
-                }
-            }
-        }
-
-        if(accept_type==VRPH_BEST_ACCEPT || accept_type==VRPH_LI_ACCEPT)
-        {
-            if(M.is_better(V, &BestM, rules))//if(M.savings<BestM.savings)
-                BestM=M;
-        }
-    }
-
-    a=b;
-
-
-    while(a!=a_end)
-    {
-        b=VRPH_MAX(V->next_array[a],0);
-        c=VRPH_MAX(V->next_array[b],0);
-        while(c!=c_end)
+        if (a!=0)
+            b = VRPH_MAX(V->next_array[a],0);
+        c = b;
+        do
         {
             d=VRPH_MAX(V->next_array[c],0);
-            e=VRPH_MAX(V->next_array[d],0);
-            while(e!=e_end)
-            {
+            e = d;
+            do
+            {    
                 f=VRPH_MAX(V->next_array[e],0);
 
                 // Evaluate the move!
@@ -142,7 +123,9 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
                         else
                         {
                             if(!(rules & VRPH_TABU))
+                            {
                                 return true;
+                            }
                             else
                             {
                                 // Check VRPH_TABU status of move - return true if its ok
@@ -165,11 +148,11 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
                     }
                 }
                 e=f;
-            }
+            } while(e != e_end);
             c=d;
-        }
+        } while (c != c_end);
         a=b;
-    }
+    } while (a != a_end);
 
 
     if(accept_type==VRPH_FIRST_ACCEPT || BestM.savings==VRP_INFINITY)
@@ -250,7 +233,6 @@ bool ThreeOpt::evaluate(class VRP *V, int a, int b, int c, int d, int e, int f,
     // IMPORTANT!! Assume that edges are in order and have no conflicts
 
     double s1, s2, s3, s4, s5, s6, s7, old;
-
 
     // savings = new-old
     double minval=VRP_INFINITY;
