@@ -55,13 +55,13 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
 
     b= V->route[r].start;
     a=VRPH_MAX(V->pred_array[b],0);
-    c = b;
+    c=b;
     if(c==VRPH_DEPOT)
         return false;
     d=VRPH_MAX(V->next_array[c],0);
     if(d==VRPH_DEPOT)
         return false;
-    e = d;
+    e=d;
     if(e==VRPH_DEPOT)
         return false;
     f=VRPH_MAX(V->next_array[e],0);
@@ -69,19 +69,8 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
         return false;
 
     int a_end, c_end, e_end;
-    // CG: ~~Set the a_end to 3 hops back from the route's end since
+    // Set the a_end to 2 hops back from the route's end since
     // we will have searched all possible moves by this point.
-    // This is ugly...~~
-    //
-    // ...and wrong. In addition, the 
-    // as ThreeOpt::move does not update
-    //  route[r].end nor route[r].start
-    //  which makes subsequent end marks
-    //  be hit and miss. normalize_route_numbers()
-    //  can be used to update them, but 
-    //  TODO: a better way would be to update
-    //  the route start and end in 
-    //  if needed ThreeOpt::move.
     a_end = VRPH_MAX(VRPH_DEPOT, V->pred_array[V->route[r].end]);
     c_end = VRPH_MAX(VRPH_DEPOT, V->route[r].end);
     e_end = VRPH_DEPOT;
@@ -94,7 +83,6 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
         V->export_solution_buff(old_sol);
     }
 
-	// CG: ~~Evaluate the first move and then enter the loop~~
     //Do not evaluate the first move separately, do it in the loop.
 
     b = V->route[r].start;
@@ -327,7 +315,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
         //
         double oldlen, oldobj;
         double temp_maxlen;
-        int temp_vehcap, a_route;
+        int temp_vehcap;
 
         // Remember the actual maximums as we may need to artificially inflate them.
         temp_maxlen= V->max_route_length;
@@ -335,11 +323,16 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         Flip flip;
 
-        a_route= V->route_num[b];// b is not VRPH_DEPOT
-
         oldlen= V->route[a_route].length;
         oldobj= V->total_route_length;
 
+
+
+        // #a->b# c->e d->f ( 2-opt move )
+        //               _____
+        //              /     \
+        // >--a--b->-c  d-<-e  f-->
+        //            \____/  
         if(type==1)
         {
 
@@ -359,6 +352,11 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         }
 
+        // a->c b->d #e->f#  ( 2-opt move )
+        //        _____
+        //       /     \
+        // >--a  b-<-c  d->-e--f-->
+        //     \____/  
         if(type==2)
         {
 
@@ -378,6 +376,11 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
             return true;
         }
 
+        // a->c b->e d->f  ( 3-opt move )
+        //         ________
+        //        /        \
+        // >--a  b-<-c  d-<-e  f-->
+        //     \____/    \____/
         if(type==3)
         {
             V->max_route_length=VRP_INFINITY;
@@ -413,10 +416,14 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
         }
 
 
+        // a->d b->e c->f  (3-opt move)
+        //         _________
+        //        /         \
+        // >--a  b->-c   d->-e  f-->
+        //     \______\_/      /
+        //             \______/
         if(type==4)
         {
-            a_route= V->route_num[b]; // b not VRPH_DEPOT!
-
             if(a!=VRPH_DEPOT && f!=VRPH_DEPOT)
             {
                 V->next_array[a]=d;
@@ -455,6 +462,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
                 V->next_array[a]=d;
                 V->pred_array[d]=a;
+                V->route[a_route].end=c;///!!!!
             }
 
             if(a==VRPH_DEPOT && f==VRPH_DEPOT)
@@ -473,12 +481,11 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
                 V->pred_array[prev_start]=-c;
 
                 V->route[a_route].start=d;///!!!!
-
+                V->route[a_route].end=c;///!!!!
 
             }
 
             //Now manually adjust the route_len and obj. value
-
 
             V->route[a_route].length=oldlen+M->savings;//s4;
             V->total_route_length=oldobj+M->savings;//s4;
@@ -490,17 +497,25 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         }
 
+        // a->d c->e b->f  (3-opt move)
+        //          _________
+        //         /   ____  \
+        //        /   /    \  \  
+        // >--a  b-<-c  d->-e  f-->
+        //     \_______/  
         if(type==5)
         {
             V->max_route_length=VRP_INFINITY;
             V->max_veh_capacity=VRP_INFINITY;
 
-            int prev_end=-1;
+            // Before any operation, store the jumps to the next/pred route.
+            //   These are needed in case a or f are VRPH_DEPOT.
+            int prev_end = VRPH_ABS(V->pred_array[b]);
+            int prev_start = VRPH_ABS(V->next_array[e]);
 
             // Remember:  flip changes the obj. value!!!!
             if(a==VRPH_DEPOT)
             {
-                prev_end=VRPH_ABS(V->pred_array[b]);
                 V->presert_dummy(b);
                 flip.move(V,V->dummy_index,d);
                 V->remove_dummy();
@@ -524,10 +539,9 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
             if(f==VRPH_DEPOT)
             {
-                int prev_start=VRPH_ABS(V->next_array[e]);
                 V->next_array[b]=-prev_start;
                 V->pred_array[prev_start]=-b;
-
+                V->route[a_route].end = b; //!!!
             }
             else
             {
@@ -545,9 +559,6 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
             V->max_route_length=temp_maxlen;
             V->max_veh_capacity=temp_vehcap;
 
-
-            a_route= V->route_num[b];
-
             V->route[a_route].length=oldlen+M->savings;//s5;
             V->total_route_length=oldobj+M->savings;//s5;
 
@@ -556,12 +567,21 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
             return true;
         }
 
+        // a->e b->d c->f  (3-opt move)
+        //             _______
+        //            /       \
+        // >--a  b->-c  d-<-e  f-->
+        //     \  \____/   / 
+        //      \_________/  
         if(type==6)
         {
             V->max_route_length=VRP_INFINITY;
             V->max_veh_capacity=VRP_INFINITY;
 
-            int prev_end=VRPH_ABS(V->pred_array[b]);
+            // Before any operation, store the jumps to the next/pred route.
+            //   These are needed in case a or f are VRPH_DEPOT.
+            int prev_end = VRPH_ABS(V->pred_array[b]);
+            int prev_start = VRPH_ABS(V->next_array[e]);
 
             if(f==VRPH_DEPOT)
             {
@@ -591,10 +611,9 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
             if(f==VRPH_DEPOT)
             {
-                int prev_start=VRPH_ABS(V->next_array[e]);
                 V->next_array[c]=-prev_start;
                 V->pred_array[prev_start]=-c;
-
+                V->route[V->route_num[b]].end = c; //!!!
             }
             else
             {
@@ -617,6 +636,11 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         }
 
+        // a->e #c->d# b->f  (2-opt move)
+        //        ____________
+        //       /            \
+        // >--a  b-<-c--d-<-e  f-->
+        //     \___________/ 
         if(type==7)
         {
 
@@ -653,6 +677,10 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         }
 
+    }
+    else
+    {
+        report_error("%s: inter-route 3-opt operations are not supported!\n",__FUNCTION__);
     }
 
 
