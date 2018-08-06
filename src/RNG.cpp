@@ -71,10 +71,22 @@ static long long zrng[]=
 206689908, 1035486424, 410559828, 883746510, 1317520915, 1194730483,
 121224379};
 
-#if VRPH_ADD_ENTROPY
-    static int initialized=0;
-#endif
+static bool initialized=false;
 
+void lcgseed(int seed)
+{
+#if VRPH_ADD_ENTROPY
+    srand((unsigned int)seed);
+
+	// Randomize all streams
+    int zrng_len = sizeof(zrng)/sizeof(long long);
+    for (int stream = 0 ; stream < zrng_len ; stream++)
+    {
+        zrng[stream]+=rand();
+    }
+#endif
+    initialized=true;
+}
 
 double lcgrand(int stream)
 {
@@ -91,15 +103,11 @@ double lcgrand(int stream)
     {
         time_t now;
         time(&now);
-        srand((unsigned int)now);
-        zrng[stream]+=rand();
-
-        initialized=1;
-
+        lcgseed((unsigned int)now);
     }
 #endif
 
-    zi= zrng[stream];
+    zi=zrng[stream];
 
     zrng[stream]=(MULT*zi) % MODULUS;
     //Update the state of the RNG

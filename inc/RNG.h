@@ -15,6 +15,7 @@
 
 #define NUM_RANDVALS 2000
 
+void lcgseed(int seed);
 double lcgrand(int stream);
 void random_permutation(int *perm, int n);
 
