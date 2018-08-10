@@ -1425,13 +1425,13 @@ void VRP::show_routes()
 
 
     printf("\nRoute %04d(routenum=%d)[0-%d...%d-0, %5.2f, %d, %d]: \n",i,current_route,
-        nodes[route[current_route].start].id,
-        nodes[route[current_route].end].id,
+        nodes[route[current_route].start].id-1,
+        nodes[route[current_route].end].id-1,
         route[current_route].length,
         route[current_route].load,
         route[current_route].num_customers);
 
-    printf("%d-%d-",VRPH_DEPOT,nodes[route_start].id);
+    printf("%d-%d-",VRPH_DEPOT,nodes[route_start].id-1);
 
     cnt++;
 
@@ -1457,7 +1457,7 @@ void VRP::show_routes()
         {
             // Next node is somewhere in the middle of a route
             next_node_number = next_array[current_node];
-            printf("%d-",nodes[next_node_number].id);
+            printf("%d-",nodes[next_node_number].id-1);
 
             current_node=next_node_number;
             cnt++;
@@ -1481,8 +1481,8 @@ void VRP::show_routes()
             current_node = route_start;
 
             printf("\n\nRoute %04d(routenum=%d)[0-%d...%d-0, %3.2f, %d, %d]: \n",i,current_route,
-                nodes[route[current_route].start].id,
-                nodes[route[current_route].end].id,
+                nodes[route[current_route].start].id-1,
+                nodes[route[current_route].end].id-1,
                 route[current_route].length,
                 route[current_route].load,
                 route[current_route].num_customers);
@@ -1490,7 +1490,7 @@ void VRP::show_routes()
 
             // Print out the beginning of this route
             total_load += route[current_route].load;
-            printf("%d-%d-",VRPH_DEPOT,nodes[current_node].id);
+            printf("%d-%d-",VRPH_DEPOT,nodes[current_node].id-1);
             cnt++;
         }
     }
