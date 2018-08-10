@@ -39,7 +39,6 @@ struct htable_entry
 
 	int num_vals;
 	int hash_val_2[NUM_ENTRIES];
-	int tot;
 	double length[NUM_ENTRIES];
 
 };
@@ -83,6 +82,7 @@ public:
 };
 
 
+
 class VRPNeighborhood
 {
 public:
@@ -96,7 +96,7 @@ public:
 
 struct VRPSegment
 {
-	///
+	/// 
 	/// Contains information about a particular segment of
 	/// a route.
 	///
