@@ -15,7 +15,6 @@
 
 #define DEBUG_ALL               0
 #define VERIFY_ALL              0
-
 #define FIXED_DEBUG             0 + DEBUG_ALL
 #define    SEARCH_DEBUG         0 + DEBUG_ALL
 #define VRPH_TABU_DEBUG         0 + DEBUG_ALL
@@ -24,7 +23,6 @@
 
 #define CW_DEBUG                0 + DEBUG_ALL
 #define CW_VERIFY               0 + VERIFY_ALL
-
 #define CLEAN_DEBUG             0 + DEBUG_ALL
 
 #define Q_DEBUG                 0 + DEBUG_ALL
@@ -81,6 +79,8 @@
 
 #define NEIGHBOR_DEBUG          0 + DEBUG_ALL
 #define TSPLIB_DEBUG            0 + DEBUG_ALL
+
+#define EJECT_DEBUG             0 + DEBUG_ALL
 
 
 void report_error(const char* format, ...);

@@ -48,6 +48,7 @@ public:
     // TSPLIB file processing
     void read_TSPLIB_file(const char *infile);
     // Write problem instance
+	void write_TSPLIB_stream(FILE *out);
     void write_TSPLIB_file(const char *outfile);
 
     // Solution display/debugging
@@ -63,6 +64,7 @@ public:
     void write_solutions(int num_sols, const char *filename);
     void write_tex_file(const char *filename);
     void read_solution_file(const char *filename);
+	void read_optimum_file(const char *filename);
     int read_fixed_edges(const char *filename);
 
     // Solution buffers (import/export)
@@ -88,10 +90,12 @@ public:
 
     // Solvers
     double RTR_solve(int heuristics, int intensity, int max_stuck, int num_perturbs,
-        double dev, int nlist_size, int perturb_type, int accept_type, bool verbose);
+        double dev, int nlist_size, int perturb_type, int accept_type, bool verbose,
+		bool use_cutoff, clock_t ticks_left);
 
     double SA_solve(int heuristics, double start_temp, double cool_ratio,
-        int iters_per_loop, int num_loops, int nlist_size, bool verbose);
+        int iters_per_loop, int num_loops, int nlist_size, bool verbose,
+		bool use_cutoff, clock_t ticks_left);
 
     // The name of the problem (from TSPLIB file)
     char name[VRPH_STRING_SIZE];
@@ -147,7 +151,7 @@ public:
     VRPRouteWarehouse *route_wh;     // To store routes/columns
 
     // Distance matrix creation
-    void create_distance_matrix(int type);
+    void create_distance_matrix();
     // Neighbor list creation
     void create_neighbor_lists(int nsize);
 

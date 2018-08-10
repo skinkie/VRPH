@@ -19,8 +19,6 @@ int main(int argc, char *argv[])
     /// Annealing to generate VRP solutions.
     ///
 
-    VRPH_version();
-
     char in[VRPH_STRING_SIZE];
     char out[VRPH_STRING_SIZE];
     char plotfile[VRPH_STRING_SIZE];
@@ -44,14 +42,18 @@ int main(int argc, char *argv[])
     bool has_outfile=false;
     bool has_plotfile=false;
     bool has_solfile=false;
+    bool has_cutoff=false;
     int heuristics=0;
+    double cutoff_time=0.0;
 
     if(argc<2 || (strncmp(argv[1],"-help",5)==0)||(strncmp(argv[1],"--help",6)==0)||(strncmp(argv[1],"-h",2)==0))
-    {
+    {   
+        VRPH_version();  
+        
         fprintf(stderr,"Usage: %s -f <vrp_input_file> [options]\n",argv[0]);
         fprintf(stderr,"Options:\n");
 
-        fprintf(stderr,"\t-help prints this help message\n");
+        fprintf(stderr,"\t-help prints this help message\n"); 
 
         fprintf(stderr,"\t-sol <solfile> begins with an existing solution contained\n");
         fprintf(stderr,"\t\t in solfile.\n");
@@ -73,17 +75,23 @@ int main(int argc, char *argv[])
         fprintf(stderr,"\t\t default is ONE_POINT_MOVE, TWO_POINT_MOVE, and TWO_OPT\n");
         fprintf(stderr,"\t\t others available are OR_OPT, THREE_OPT, and CROSS_EXCHANGE\n");
         fprintf(stderr,"\t\t Example: -h OR_OPT -h THREE_OPT -h TWO_OPT\n");
+        fprintf(stderr,"\t\t Setting -h KITCHEN_SINK applies all heuristics in the \n");
+        fprintf(stderr,"\t\t improvement phase\n");
 
         fprintf(stderr,"\t-l <num_lambdas> runs the SA procedure from num_lambdas\n");
         fprintf(stderr,"\t\t different initial CW solutions using a random lambda chosen\n");
         fprintf(stderr,"\t\t from (0.5,2.0)\n");
         fprintf(stderr,"\t\t default is to use lambda in (.6, 1.4, 1.6).\n");
 
-        fprintf(stderr,"\t-s <nlist_size> uses the nlist_size nearest neighbors in the search\n");
-        fprintf(stderr,"\t\t (default is 40).\n");
+        fprintf(stderr,"\t-nn <nlist_size> uses the nlist_size nearest neighbors in the search\n");
+        fprintf(stderr,"\t\t (default is 10).\n");
+        
+        fprintf(stderr,"\t-cutoff <runtime> will stop after given runtime (in seconds)\n");
 
+        
         fprintf(stderr,"\t-o <out_file> writes the solution to the provided file\n");
         fprintf(stderr,"\t-plot <plot_file> plots the best solution to the provided file\n");
+    
         exit(-1);
     }
 
@@ -146,20 +154,6 @@ int main(int argc, char *argv[])
         {
             new_lambdas=true;
             num_lambdas = atoi(argv[i+1]);
-
-            if(num_lambdas>VRPH_MAX_NUM_LAMBDAS)
-            {
-                fprintf(stderr,"%d>VRPH_MAX_NUM_LAMBDAS\n",num_lambdas);
-                exit(-1);
-            }
-
-            // Fill the array with random values
-            printf("Creating %d random lambdas\n",num_lambdas);
-            for(int j=0;j<num_lambdas;j++)
-            {
-                // Generate a random lambda in (0.5,2)
-                lambda_vals[j] = 0.5 + 1.5*((double)lcgrand(0));
-            }
         }
 
         if(strcmp(argv[i],"-sol")==0)
@@ -171,7 +165,7 @@ int main(int argc, char *argv[])
         if(strcmp(argv[i],"-c")==0)
             cooling_ratio=(double)(atof(argv[i+1]));
 
-        if(strcmp(argv[i],"-s")==0)
+        if(strcmp(argv[i],"-nn")==0)
             nlist_size=atoi(argv[i+1]);
 
         if(strcmp(argv[i],"-p")==0)
@@ -188,7 +182,6 @@ int main(int argc, char *argv[])
         {
             has_outfile=true;
             strcpy(out,argv[i+1]);
-
         }
 
         if(strcmp(argv[i],"-plot")==0)
@@ -196,6 +189,12 @@ int main(int argc, char *argv[])
             has_plotfile=true;
             strcpy(plotfile,argv[i+1]);
 
+        }
+        
+        if(strcmp(argv[i],"-cutoff")==0)
+        {
+            has_cutoff=true;
+            cutoff_time=atof(argv[i+1]);
         }
 
     }
@@ -206,6 +205,24 @@ int main(int argc, char *argv[])
         lambda_vals[0]=.6;
         lambda_vals[1]=1.4;
         lambda_vals[2]=1.6;
+    }
+    // JHR: Generate lambdas here, because seed may be set in option processing above
+    else
+    {
+        if(num_lambdas>VRPH_MAX_NUM_LAMBDAS)
+        {
+            fprintf(stderr,"%d>VRPH_MAX_NUM_LAMBDAS\n",num_lambdas);
+            exit(-1);
+        }
+
+        // Fill the array with random values
+        if(verbose)
+            printf("Creating %d random lambdas\n",num_lambdas);
+        for(int j=0;j<num_lambdas;j++)
+        {
+            // Generate a random lambda in (0.5,2)
+            lambda_vals[j] = 0.5 + 1.5*((double)lcgrand(0));
+        }
     }
 
     if(has_heuristics==false)
@@ -221,10 +238,14 @@ int main(int argc, char *argv[])
     ClarkeWright CW(n);
 
     double best_obj=VRP_INFINITY;
-    double this_obj, start_obj;
+    double this_obj;
     int *best_sol=new int[n+2];
 
+    
     time_t start=clock();
+    time_t run_start=start;
+    time_t ticks_left=0;
+    time_t stop=0;
     if(has_solfile == false)
     {
         for(i=0;i<num_lambdas;i++)
@@ -234,8 +255,15 @@ int main(int argc, char *argv[])
             if(verbose)
                 printf("CW[%f] solution: %f\n",lambda_vals[i], V.get_total_route_length());
 
+            stop=clock();
+            ticks_left=run_start+(int)(cutoff_time*CLOCKS_PER_SEC)-stop;
+            
+            if (has_cutoff && ((double)(stop-run_start))/CLOCKS_PER_SEC>cutoff_time)
+                break;
+        
+            
             this_obj = V.SA_solve(heuristics, starting_temperature, cooling_ratio, iters_per_loop,
-                num_loops, nlist_size, verbose);
+                num_loops, nlist_size, verbose, has_cutoff, ticks_left);
 
             if(V.get_best_total_route_length()<best_obj)
             {
@@ -244,23 +272,22 @@ int main(int argc, char *argv[])
             }
 
             if(verbose)
-                printf("Improved solution: %f\n",this_obj);
+                printf("Improved solution: %f\n",this_obj);        
 
         }
     }
     else
     {
         V.read_solution_file(solfile);
-        start_obj=V.get_total_route_length();
         this_obj = V.SA_solve(heuristics, starting_temperature, cooling_ratio, iters_per_loop,
-            num_loops, nlist_size, verbose);
+            num_loops, nlist_size, verbose, has_cutoff, (clock_t)(cutoff_time*CLOCKS_PER_SEC));
         if(V.get_best_total_route_length()<best_obj)
         {
             best_obj=V.get_best_total_route_length();
             V.export_canonical_solution_buff(best_sol);
         }
         if(verbose)
-            printf("Improved solution: %f\n",this_obj);
+            printf("Improved solution: %f\n",this_obj);    
 
     }
 
@@ -298,7 +325,7 @@ int main(int argc, char *argv[])
 
     }
 
-    time_t stop=clock();
+    stop=clock();
     double elapsed=(double)(stop-start)/CLOCKS_PER_SEC;
     // Print results to stdout
     printf("%d %5.3f %5.2f",V.get_total_number_of_routes(),

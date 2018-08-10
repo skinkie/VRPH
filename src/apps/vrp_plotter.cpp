@@ -16,29 +16,30 @@
 int main(int argc, char *argv[])
 {
     ///
-    /// This is the main() routine that demonstrates how to import solutions and
+    /// This is the main() routine that demonstrates how to import solutions and 
     /// plot them.
     ///
 
-    VRPH_version();
-
     char in[VRPH_STRING_SIZE], plotfile[VRPH_STRING_SIZE],pdffile[VRPH_STRING_SIZE],
      solfile[VRPH_STRING_SIZE];
-
+    
     int i,n;
     int orientation=1;
     bool do_pdf=false;
 
     // Usage: vrp_plotter -f <vrp_file> -s <sol_file> -p <plot_file>
     if(argc<7 )
-    {
-        fprintf(stderr,"Usage: %s -f <vrp_file> -s <sol_file> -p <plot_file> [-e -w -r]\n",argv[0]);
+    {        
+        VRPH_version();
+        
+        fprintf(stderr,"Usage: %s -f <vrp_file> -sol <sol_file> -p <plot_file> [-e -w -o]\n",argv[0]);
         fprintf(stderr,"\t <plot_file> must be .ps format\n");
         fprintf(stderr,"\t .pdf format requires the epstopdf executable\n");
         fprintf(stderr,"\t -pdf <pdf_file> will also create a .pdf image of the solution\n");
         fprintf(stderr,"\t -e will not show the depot edges\n");
         fprintf(stderr,"\t -w will weight the size of the non-depot nodes by their demand\n");
         fprintf(stderr,"\t -o will rotate 90 degrees\n");
+        
         exit(-1);
     }
 
@@ -52,20 +53,20 @@ int main(int argc, char *argv[])
         {
             // Get the input file name
             has_filename=true;
-            strcpy(in,argv[i+1]);
+            strcpy(in,argv[i+1]);            
         }
 
-        if(strcmp(argv[i],"-s")==0)
+        if(strcmp(argv[i],"-sol")==0)
         {
             // Get the solution file name
-            strcpy(solfile,argv[i+1]);
+            strcpy(solfile,argv[i+1]);            
         }
-
+        
         if(strcmp(argv[i],"-p")==0)
         {
             // Get the plot file name
             strcpy(plotfile,argv[i+1]);
-
+            
         }
 
         if(strcmp(argv[i],"-pdf")==0)
@@ -79,15 +80,14 @@ int main(int argc, char *argv[])
             options+=VRPH_NO_DEPOT_EDGES;
 
         if(strcmp(argv[i],"-w")==0)
-            options+=VRPH_WEIGHTED;
+            options+=VRPH_WEIGHTED;     
 
-        if(strcmp(argv[i],"-r")==0)
+        if(strcmp(argv[i],"-o")==0)
         {
             // Get the plot file name
             orientation=0;
-
         }
-
+        
     }
 
     if(!has_filename)
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     VRP V(n);
 
     // Load the problem data
-    V.read_TSPLIB_file(in);
+    V.read_TSPLIB_file(in);    
 
     printf("Imported instance\n");
 
