@@ -87,7 +87,11 @@ int main(int argc, char *argv[])
         fprintf(stderr,"\t\t (default is 10).\n");
         
         fprintf(stderr,"\t-cutoff <runtime> will stop after given runtime (in seconds)\n");
+#if VRPH_ADD_ENTROPY
+        fprintf(stderr,"\t-r will search the neighborhood in a random fashion\n");
 
+        fprintf(stderr,"\t-s <seed> will set the random seed\n");
+#endif
         
         fprintf(stderr,"\t-o <out_file> writes the solution to the provided file\n");
         fprintf(stderr,"\t-plot <plot_file> plots the best solution to the provided file\n");
@@ -196,7 +200,19 @@ int main(int argc, char *argv[])
             has_cutoff=true;
             cutoff_time=atof(argv[i+1]);
         }
+#if VRPH_ADD_ENTROPY
+        if(strcmp(argv[i],"-s")==0)
+        {
+            // Set the RNG seed
+            lcgseed(atoi(argv[i+1]));
+        }
 
+        if(strcmp(argv[i],"-s")==0 || strcmp(argv[i],"-r")==0)
+        {
+            // JHR: Force use of randomization (othervise setting the seed makes little sense)
+            heuristics+=VRPH_RANDOMIZED;
+        }
+#endif
     }
 
     if(new_lambdas==false)

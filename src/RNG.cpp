@@ -77,8 +77,6 @@ void lcgseed(int seed)
 {
 #if VRPH_ADD_ENTROPY
     srand((unsigned int)seed);
-
-	// Randomize all streams
     int zrng_len = sizeof(zrng)/sizeof(long long);
     for (int stream = 0 ; stream < zrng_len ; stream++)
     {

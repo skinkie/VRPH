@@ -259,6 +259,9 @@ int main(int argc, char **argv)
         fprintf(stderr,"\t -d num_cols_to_delete will delete this many columns once we have too many\n");
         fprintf(stderr,"\t    in the IP. Default value is num_cols_to_delete=100\n");
         fprintf(stderr,"\t -cutoff run_time will stop after given runtime (in seconds)\n");
+#if VRPH_ADD_ENTROPY
+        fprintf(stderr,"\t -s seed will set the random seed\n");
+#endif
         exit(-1);
     }
 
@@ -287,6 +290,13 @@ int main(int argc, char **argv)
              has_cutoff=true;
              cutoff_time=atof(argv[i+1]);
          }
+#if VRPH_ADD_ENTROPY
+         if(strcmp(argv[i],"-s")==0)
+         {
+            // Set the RNG seed
+            lcgseed(atoi(argv[i+1]));
+         }
+#endif
     }
 
     // This is the # of non-VRPH_DEPOT nodes

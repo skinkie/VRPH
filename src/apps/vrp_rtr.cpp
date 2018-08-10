@@ -263,6 +263,20 @@ int main(int argc, char *argv[])
             has_cutoff=true;
             cutoff_time=atof(argv[i+1]);
         }
+#if VRPH_ADD_ENTROPY
+        if(strcmp(argv[i],"-s")==0)
+        {
+            // Set the RNG seed
+            lcgseed(atoi(argv[i+1]));
+            
+        }
+
+        if(strcmp(argv[i],"-s")==0 || strcmp(argv[i],"-r")==0)
+        {
+            // JHR: Force use of randomization (othervise setting the seed makes little sense)
+            heuristics+=VRPH_RANDOMIZED;
+        }
+#endif
     }
 
     // Load the problem data

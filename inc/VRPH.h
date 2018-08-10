@@ -95,7 +95,7 @@
 // Set this to 1 if you want to have different random
 // seeds that incorporate time -
 // otherwise the solution should be repeatable
-#define VRPH_ADD_ENTROPY            0
+#define VRPH_ADD_ENTROPY            1
 // Set this to 1 if you want to prevent "trivial"
 // moves that have no effect on the total route length
 #define VRPH_FORBID_TINY_MOVES      1

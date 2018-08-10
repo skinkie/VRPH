@@ -18,11 +18,10 @@
 int main(int argc, char *argv[])
 {
     ///
-    /// A main() routine to test the procedures and performance of
+    /// A main() routine to test the procedures and performance of 
     /// various routines for ejecting and injecting groups of nodes
     /// using two strategies.
     ///
-
 
     char infile[VRPH_STRING_SIZE];
     char solfile[VRPH_STRING_SIZE];
@@ -187,6 +186,19 @@ int main(int argc, char *argv[])
             cutoff_time=atof(argv[i+1]);
         }
         
+#if VRPH_ADD_ENTROPY
+        if(strcmp(argv[i],"-s")==0)
+        {
+            // Set the RNG seed
+            lcgseed(atoi(argv[i+1]));
+        }
+
+        if(strcmp(argv[i],"-s")==0 || strcmp(argv[i],"-r")==0)
+        {
+            // JHR: Force use of randomization (othervise setting the seed makes little sense)
+            heuristics+=VRPH_RANDOMIZED;
+        }
+#endif
     }
     
     if(has_heuristics==false)
