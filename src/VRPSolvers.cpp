@@ -668,7 +668,6 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
-
             }
 
 
@@ -685,7 +684,6 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
-
             }
 
 
@@ -702,8 +700,6 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
-
-
             }
 
 
@@ -721,8 +717,6 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
-
-
             }        
 
             if(heuristics & THREE_POINT_MOVE)
