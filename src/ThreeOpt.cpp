@@ -33,7 +33,7 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
     int accept_type=VRPH_FIRST_ACCEPT;
 
     // Initialize to null edges
-    e11=e12=e21=e22=e31=e32=0;
+    e11=e12=e21=e22=e31=e32=0;    
 
     if( (rules & VRPH_USE_NEIGHBOR_LIST) > 0)
         report_error("%s: neighbor_list not used in 3OPT search--searches all nodes in route\n",__FUNCTION__);
@@ -75,7 +75,7 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
     int *old_sol=NULL;
     if(rules & VRPH_TABU)
     {
-        // Remember the original solution
+        // Remember the original solution 
         old_sol=new int[V->num_original_nodes+2];
         V->export_solution_buff(old_sol);
     }
@@ -220,7 +220,7 @@ bool ThreeOpt::evaluate(class VRP *V, int a, int b, int c, int d, int e, int f,
     /// finds the most cost effective of the possible moves and
     /// stores the relevant data in the VRPMove M and returns true.
     /// If no satisfactory move is found, the function returns false.
-    ///
+    ///    
 
     V->num_evaluations[THREE_OPT_INDEX]++;
     M->evaluated_savings=false;
@@ -232,7 +232,7 @@ bool ThreeOpt::evaluate(class VRP *V, int a, int b, int c, int d, int e, int f,
     if(rules & VRPH_FIXED_EDGES)
     {
         // Make sure we aren't disturbing fixed edges
-        if( V->fixed[a][b] || V->fixed[c][d] || V->fixed[e][f])
+        if( V->fixed[a][b] || V->fixed[c][d] || V->fixed[e][f]) 
             return false;
 
     }
@@ -250,7 +250,6 @@ bool ThreeOpt::evaluate(class VRP *V, int a, int b, int c, int d, int e, int f,
     // IMPORTANT!! Assume that edges are in order and have no conflicts
 
     double s1, s2, s3, s4, s5, s6, s7, old;
-
 
     // savings = new-old
     double minval=VRP_INFINITY;
@@ -306,7 +305,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 {
     ///
     /// This function makes the actual solution modification involving the Three-Opt
-    /// move with the edges V->d[a][b], V->d[c][d], and V->d[e][f].
+    /// move with the edges V->d[a][b], V->d[c][d], and V->d[e][f].  
     ///
 
     int a,b,c,d,e,f;
@@ -327,7 +326,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
     else
         c_route= V->route_num[d];
 
-    if(e!=VRPH_DEPOT)
+    if(e!=VRPH_DEPOT) 
         e_route= V->route_num[e];
     else
         e_route= V->route_num[f];
@@ -398,7 +397,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         if(type==3)
         {
-            V->max_route_length=VRP_INFINITY;
+            V->max_route_length=VRP_INFINITY;    
             V->max_veh_capacity=VRP_INFINITY;
 
             if(a==VRPH_DEPOT)
@@ -510,7 +509,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         if(type==5)
         {
-            V->max_route_length=VRP_INFINITY;
+            V->max_route_length=VRP_INFINITY;    
             V->max_veh_capacity=VRP_INFINITY;
 
             int prev_end=-1;
@@ -576,7 +575,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 
         if(type==6)
         {
-            V->max_route_length=VRP_INFINITY;
+            V->max_route_length=VRP_INFINITY;    
             V->max_veh_capacity=VRP_INFINITY;
 
             int prev_end=VRPH_ABS(V->pred_array[b]);
@@ -667,10 +666,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
             V->num_moves[THREE_OPT_INDEX]++;
             V->capture_best_solution();
             return true;
-
-
         }
-
     }
 
 

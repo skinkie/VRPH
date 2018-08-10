@@ -28,7 +28,7 @@ public:
     VRPMove(int n);
     ~VRPMove();
 
-	bool is_better(class VRP *V, VRPMove *M2, int criteria);
+	int is_better(class VRP *V, VRPMove *M2, int criteria);
 
 	int    criteria;
 	int    num_affected_routes;
@@ -47,7 +47,7 @@ public:
 	int move_arguments[MAX_ARGUMENTS];
 	int eval_arguments[MAX_ARGUMENTS];
 
-	bool evaluated_savings;
+	bool evaluated_savings;	
 
 };
 

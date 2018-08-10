@@ -23,7 +23,7 @@ VRPMove::VRPMove()
     this->total_number_of_routes=-1;
 
     this->arrival_times=NULL;
-
+    
 }
 
 VRPMove::VRPMove(int n)
