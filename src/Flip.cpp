@@ -128,9 +128,8 @@ bool Flip::move(VRP *V, int start_point, int end_point)
         return false;
 
 #if FLIP_VERIFY
-    V->verify_routes("Flip::move: after evaluate");
+    V->verify_routes("Flip::move: after evaluate\n");
 #endif
-
     V->update(&M);
 
     // Now update the arrays
@@ -161,7 +160,7 @@ bool Flip::move(VRP *V, int start_point, int end_point)
         V->pred_array[end]=pre_start;
 
 #if FLIP_VERIFY
-        V->verify_routes("flip 1");
+        V->verify_routes("flip 1\n");
 #endif
 
         return true;
@@ -198,8 +197,7 @@ bool Flip::move(VRP *V, int start_point, int end_point)
     V->next_array[start]=current;
 
 #if FLIP_VERIFY
-    V->verify_routes("Flip::move: after update");
+    V->verify_routes("Flip::move: after update\n");
 #endif
-
     return true;
 }

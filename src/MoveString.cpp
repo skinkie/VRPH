@@ -15,7 +15,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
 {
     ///
     /// Evaluates the move of taking the string between u and v (i.e. t-u-j-k-l-m-v-w)
-    /// and inserting between a and b (assumed to currently be an existing edge),
+    /// and inserting between a and b (assumed to currently be an existing edge), 
     /// yielding t-w & a-u-j-k-l-m-b
     ///
 
@@ -31,7 +31,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
     int t,w;
 
     t=VRPH_MAX(V->pred_array[u],0);
-    w=VRPH_MAX(V->next_array[v],0);
+    w=VRPH_MAX(V->next_array[v],0);    
 
     int a_route, u_route;
 
@@ -64,7 +64,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
     V->get_segment_info(u,v,&S);
 
 
-#    if(STRING_DEBUG>1)
+#if(STRING_DEBUG>1)
     printf("STRING::string_len: %f;  string_load: %d; string_custs: %d\n",string_len, string_load);
 #endif
 
@@ -111,7 +111,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
 # if STRING_DEBUG>1
             printf("STRING::a_len too long: %f\n",new_a_len);
 #endif
-            // Exceeds length
+            // Exceeds length 
             return false;
         }
 
@@ -121,7 +121,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
 #            if(STRING_DEBUG>1)
             printf("STRING::u_len too long: %f\n",new_u_len);
 #endif
-            // Exceeds length
+            // Exceeds length 
             return false;
         }
 
@@ -193,7 +193,7 @@ bool MoveString::move(VRP *V, int a, int b, int u, int v)
 
     if(a!=VRPH_DEPOT)
     {
-        // We can do this via a sequence of postserts
+        // We can do this via a sequence of postserts    
         Postsert postsert;
 
         int string[100];
@@ -225,7 +225,7 @@ bool MoveString::move(VRP *V, int a, int b, int u, int v)
 
         postsert.move(V,string[0],a);
         for(i=1;i<len;i++)
-        {
+        {    
             postsert.move(V,string[i],string[i-1]);
         }
 
@@ -234,14 +234,14 @@ bool MoveString::move(VRP *V, int a, int b, int u, int v)
 
 #if STRING_DEBUG
         printf("Routes after move:\n");
-//        V->show_route(u_route);  // I'm not sure what this was supposed to be?
+        V->show_route(V->route_num[u]);
         V->show_route(V->route_num[a]);
 
 #endif
 
 
 #if STRING_VERIFY
-        V->verify_routes("After Postsert move string");
+        V->verify_routes("After Postsert move string\n");
 #endif
     }
     else
@@ -276,7 +276,7 @@ bool MoveString::move(VRP *V, int a, int b, int u, int v)
 
 
 #if STRING_VERIFY
-        V->verify_routes("After movestring");
+        V->verify_routes("After movestring\n");
 #endif
     }
 

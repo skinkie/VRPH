@@ -16,10 +16,10 @@
 bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
 {
     ///
-    /// Evaluates the move of swapping the positions of nodes u and i in
-    /// the current   For example,
-    /// Current situation:    t-u-v and h-i-j
-    /// New situation:        t-i-v and h-u-k
+    /// Evaluates the move of swapping the positions of nodes u and i in 
+    /// the current   For example, 
+    /// Current situation:    t-u-v and h-i-j 
+    /// New situation:        t-i-v and h-u-k        
     ///
 
     if(V->routed[u]==false || V->routed[i]==false)
@@ -49,7 +49,7 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
 
     savings=VRP_INFINITY;
 
-    //savings=new-old
+    //savings=new-old 
     if(h==u)
     {
         // t-h/u-i/v-j --> t-i/v-h/u-j
@@ -57,7 +57,7 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
             (V->d[t][u]+V->d[u][v]+V->d[i][j]);
         swap_type=1;
     }
-
+    
     if(h==v)
     {
         savings=(V->d[t][i]+V->d[i][h]+V->d[v][u]+V->d[u][j])-
@@ -86,7 +86,7 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
             (V->d[t][u]+V->d[u][v] + V->d[h][i]+V->d[i][j]);
 
         i_change=(V->d[h][u]+V->d[u][j])-(V->d[h][i]+V->d[i][j]);
-
+        
         // Route u was t-u-v and is now t-i-v
         u_change=(V->d[t][i]+V->d[i][v])-(V->d[t][u]+V->d[u][v]);
 
@@ -121,10 +121,10 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
     }
     else
     {
-        // Different routes--but in this case we can't have any of the
+        // Different routes--but in this case we can't have any of the 
         // overlap conditions unless the VRPH_DEPOT is involved!!
 
-
+        
         M->num_affected_routes=2;
         M->route_nums[0] = u_route;
         M->route_nums[1] = i_route;
@@ -136,7 +136,7 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
         if(swap_type==1)
         {
             report_error("%s: should not be in different routes(1)\n",__FUNCTION__);
-
+            
         }
 
         if(swap_type==2)
@@ -157,10 +157,10 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
 
         if(swap_type==4)
         {
-
+            
             //j==u- not possible
             report_error("%s: should not be in different routes(4)\n",__FUNCTION__);
-
+            
 
         }
 
@@ -191,7 +191,7 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
             return false;    // route that used to contain u is infeasible
 
     }
-    // The move is feasible - store the rest and check
+    // The move is feasible - store the rest and check 
     M->savings=savings;
     M->new_total_route_length=V->total_route_length+savings;
     M->total_number_of_routes=V->total_number_of_routes;
@@ -199,7 +199,7 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
     M->route_custs[1]=V->route[i_route].num_customers;
 
     return true;
-
+    
 }
 
 bool Swap::move(VRP *V, int u, int i)
@@ -225,7 +225,7 @@ bool Swap::move(VRP *V, int u, int i)
 
     // Don't update here since some special cases are
     // handled w/ postsert and presert...
-
+    
 
     int h,j,t,v,hh,jj,tt,vv;
     class Postsert postsert;
@@ -257,9 +257,9 @@ bool Swap::move(VRP *V, int u, int i)
 #endif
 
 #if SWAP_VERIFY
-            V->verify_routes("Before h==u SWAP");
+            V->verify_routes("Before h==u SWAP\n");
 #endif
-        // Put u after i
+        // Put u after i 
         if(postsert.move(V,u,i)==false)
         {
             fprintf(stderr,"postsert(%d,%d) is false in SWAP!\n",u,i);
@@ -271,7 +271,7 @@ bool Swap::move(VRP *V, int u, int i)
         else
         {
 #if SWAP_VERIFY
-            V->verify_routes("After h==u SWAP");
+            V->verify_routes("After h==u SWAP\n");
 #endif
 
             return true;
@@ -281,7 +281,7 @@ bool Swap::move(VRP *V, int u, int i)
     if(jj==u)
     {
 #if SWAP_VERIFY
-        V->verify_routes("Before j==u SWAP");
+        V->verify_routes("Before j==u SWAP\n");        
 #endif
         // We have h-i/t-u/j-v, so just put i after u
         double t1= V->max_route_length;
@@ -297,7 +297,7 @@ bool Swap::move(VRP *V, int u, int i)
         V->max_veh_capacity=t2;
 
 #if SWAP_VERIFY
-        V->verify_routes("After j==u SWAP");
+        V->verify_routes("After j==u SWAP\n");        
 #endif
 
         return true;
@@ -306,7 +306,7 @@ bool Swap::move(VRP *V, int u, int i)
     if(hh==vv)
     {
 #if SWAP_VERIFY
-        V->verify_routes("Before h==v SWAP");
+        V->verify_routes("Before h==v SWAP\n");        
 #endif
 
 
@@ -346,7 +346,7 @@ bool Swap::move(VRP *V, int u, int i)
         V->max_route_length=t1;
         V->max_veh_capacity=t2;
 #if SWAP_VERIFY
-            V->verify_routes("After h==v SWAP");
+            V->verify_routes("After h==v SWAP\n");
 #endif
 
         return true;
@@ -357,7 +357,7 @@ bool Swap::move(VRP *V, int u, int i)
     {
 
 #if SWAP_VERIFY
-            V->verify_routes("Before j==t SWAP");
+            V->verify_routes("Before j==t SWAP\n");
 #endif
 
         //Current:        h-i-j/t-u-v
@@ -393,14 +393,14 @@ bool Swap::move(VRP *V, int u, int i)
         V->max_veh_capacity=t2;
 
 #if SWAP_VERIFY
-            V->verify_routes("After j==t SWAP");
+            V->verify_routes("After j==t SWAP\n");
 #endif
 
         return true;
     }
 
 #if SWAP_VERIFY
-            V->verify_routes("Before normal SWAP");
+            V->verify_routes("Before normal SWAP\n");
 #endif
     // Here is the "normal" case
 
@@ -455,7 +455,7 @@ bool Swap::move(VRP *V, int u, int i)
         V->pred_array[VRPH_ABS(v)]=-i;
     }
 
-    // Now adjust the start and end routes
+    // Now adjust the start and end routes 
     // Get the old route nums
     u_route= V->route_num[u];
     i_route= V->route_num[i];
@@ -483,7 +483,7 @@ bool Swap::move(VRP *V, int u, int i)
 
 
 #if SWAP_VERIFY
-        V->verify_routes("After inter SWAP");
+        V->verify_routes("After inter SWAP\n");        
 #endif
 
     }
@@ -514,7 +514,7 @@ bool Swap::move(VRP *V, int u, int i)
         }
 
 #if SWAP_VERIFY
-        V->verify_routes("After intra SWAP");
+        V->verify_routes("After intra SWAP\n");        
 #endif
 
 

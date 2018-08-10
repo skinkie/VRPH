@@ -437,7 +437,7 @@ bool CrossExchange::move(class VRP *V, VRPMove *M)
 #endif
 
 #if CROSS_EXCHANGE_VERIFY
-    V->verify_routes("After CrossExchange move");
+    V->verify_routes("After CrossExchange move\n");
 #endif
 
     V->num_moves[CROSS_EXCHANGE_INDEX]++;

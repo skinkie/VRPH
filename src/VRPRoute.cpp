@@ -82,7 +82,7 @@ int VRPRoute::hash(int salt)
         fprintf(stderr,"end<start! %d<%d\n",this->ordering[num_customers-1],this->ordering[0]);
         for(i=0;i<this->num_customers;i++)
             fprintf(stderr,"%d ",this->ordering[i]);
-        fprintf(stderr,"Length=%f;\nLoad=%d\nObj=%fStart=%d\nEnd=%d\n",this->length,this->load,this->obj_val,
+        fprintf(stderr,"Length=%f;\nLoad=%d\nObj=%f\nStart=%d\nEnd=%d\n",this->length,this->load,this->obj_val,
             this->start,this->end);
 
         report_error("%s: Error in route hash\n",__FUNCTION__);
