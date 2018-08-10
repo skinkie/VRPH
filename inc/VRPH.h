@@ -93,7 +93,7 @@
 
 // Miscellaneous defines
 // Set this to 1 if you want to have different random
-// seeds that incorporate time -
+// seeds that incorporate time - 
 // otherwise the solution should be repeatable
 #define VRPH_ADD_ENTROPY            1
 // Set this to 1 if you want to prevent "trivial"
@@ -115,6 +115,9 @@
 #define VRPH_OSMAN_PERTURB          1
 // Multi-day VRP's
 #define VRPH_MAX_SERVICE_DAYS       10
+
+// JHR: Get PI in Microsoft Visual C++ 
+#define _USE_MATH_DEFINES
 
 #include "RNG.h"
 #include <stdlib.h>
