@@ -119,6 +119,9 @@
 // JHR: Get PI in Microsoft Visual C++ 
 #define _USE_MATH_DEFINES
 
+// Gather statistics about some local search moves
+#define LOCAL_SEARCH_STATISTICS     1
+
 #include "RNG.h"
 #include <stdlib.h>
 #include <stdio.h>

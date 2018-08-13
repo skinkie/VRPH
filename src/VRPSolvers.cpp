@@ -214,8 +214,6 @@ uphill:
                 TO.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
 #else
                 TO.search(this, perm[i - 1], rules);
-#if VERIFY_ALL
-              this->verify_routes("VRP::RTR_solve: after two-opt");
 #endif
             }
 
