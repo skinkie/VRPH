@@ -10,7 +10,7 @@
 #ifndef _VRP_CONFIG_H
 #define _VRP_CONFIG_H
 
-#define EPS_EXE	"epstopdf"
+#define EPS_EXE "epstopdf"
 // To convert .ps to .pdf files - only tested on WINDOWS and Cygwin
 
 #if HAS_PLPLOT

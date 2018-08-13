@@ -13,28 +13,28 @@
 #ifndef _VRP_VRPH_TABU_H
 #define _VRP_VRPH_TABU_H
 
-#define NUM_VRPH_TABU_ROUTES		50
+#define NUM_VRPH_TABU_ROUTES        50
 
 class VRPTabuList
 {
 public:
-	VRPTabuList();
-	VRPTabuList(int t);
-	
-	// Destructor
-	~VRPTabuList();
+    VRPTabuList();
+    VRPTabuList(int t);
+    
+    // Destructor
+    ~VRPTabuList();
 
-	void update_list(VRPRoute *r);
-	int max_entries;
-	int num_entries;
-	int start_index;
-	int *hash_vals1;
-	int *hash_vals2;
-	// Circular buffer containing the hash values of the routes
-	bool full;
-	// Set to true once we have num_entries elements in the list
-	void show();
-	void empty();
+    void update_list(VRPRoute *r);
+    int max_entries;
+    int num_entries;
+    int start_index;
+    int *hash_vals1;
+    int *hash_vals2;
+    // Circular buffer containing the hash values of the routes
+    bool full;
+    // Set to true once we have num_entries elements in the list
+    void show();
+    void empty();
 };
 
 

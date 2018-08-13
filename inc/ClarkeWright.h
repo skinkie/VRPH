@@ -14,9 +14,9 @@
 #define _CW_H
 
 
-#define VRPH_UNUSED		0			// For node status use
-#define VRPH_ADDED		1			// For node status use
-#define VRPH_INTERIOR	2			// For node status use
+#define VRPH_UNUSED     0           // For node status use
+#define VRPH_ADDED      1           // For node status use
+#define VRPH_INTERIOR   2           // For node status use
 
 class ClarkeWright
 {
@@ -25,7 +25,7 @@ public:
     ~ClarkeWright();
     bool Construct(class VRP *V, double lambda, bool use_neighbor_list);
     class VRPSavingsElement *s;
-    void CreateSavingsMatrix(class VRP *V, double lambda, bool use_neighbor_list);	
+    void CreateSavingsMatrix(class VRP *V, double lambda, bool use_neighbor_list);  
     bool has_savings_matrix;
     int savings_matrix_size;
 

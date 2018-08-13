@@ -16,13 +16,13 @@
 class ThreePointMove
 {
 public:
-	bool search(class VRP *V, int b, int criteria);
-	bool route_search(class VRP *V, int r1, int r2, int criteria);
+    bool search(class VRP *V, int b, int criteria);
+    bool route_search(class VRP *V, int r1, int r2, int criteria);
 
 private:
-	bool evaluate(class VRP *V, int a, int j, int k, int criteria, VRPMove *M);
-	bool move(class VRP *V, VRPMove *M);//, int i, int j);
-	
+    bool evaluate(class VRP *V, int a, int j, int k, int criteria, VRPMove *M);
+    bool move(class VRP *V, VRPMove *M);//, int i, int j);
+    
 };
 
 #endif

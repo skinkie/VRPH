@@ -14,71 +14,71 @@
 #define _VRP_UTIL_H
 
 
-#define MAX_FILES				20000
-#define MAX_FILENAME_LENGTH		40
+#define MAX_FILES               20000
+#define MAX_FILENAME_LENGTH     40
 
 // Misc
-#define NUM_ELITE_SOLUTIONS		200
-#define MAX_NUM_COLS			10000
-#define NUM_ENTRIES				8
+#define NUM_ELITE_SOLUTIONS     200
+#define MAX_NUM_COLS            10000
+#define NUM_ENTRIES             8
 #define MAX_VRPH_TABU_LIST_SIZE 50
 
-#define HASH_TABLE_SIZE			(1<<18)
-#define SALT_1					0
-#define SALT_2					11
+#define HASH_TABLE_SIZE         (1<<18)
+#define SALT_1                  0
+#define SALT_2                  11
 
 struct htable_entry
 {
-	///
-	/// Each entry in the hash table will contain
-	/// an array of num_vals valid entries in hval[].
-	/// Each entry is produced by hashing using
-	/// SALT_2.  The length array contains the lengths
-	/// of the routes in this position in the hash table.
-	///
+    ///
+    /// Each entry in the hash table will contain
+    /// an array of num_vals valid entries in hval[].
+    /// Each entry is produced by hashing using
+    /// SALT_2.  The length array contains the lengths
+    /// of the routes in this position in the hash table.
+    ///
 
-	int num_vals;
-	int hash_val_2[NUM_ENTRIES];
-	double length[NUM_ENTRIES];
+    int num_vals;
+    int hash_val_2[NUM_ENTRIES];
+    double length[NUM_ENTRIES];
 
 };
 
 struct int_int
 {
-	int i;
-	int j;
+    int i;
+    int j;
 };
 struct double_int
 {
-	double d;
-	int k;
+    double d;
+    int k;
 };
 
 class VRPSavingsElement
 {
 public:
-	// Useful to make some of the bookkeeping simpler when
-	// calculating the savings.
-	double savings;
-	int position;
-	int i;
-	int j;
+    // Useful to make some of the bookkeeping simpler when
+    // calculating the savings.
+    double savings;
+    int position;
+    int i;
+    int j;
 };
 
 
 class VRPNeighborElement
 {
 public:
-	double val;
-	int position;
+    double val;
+    int position;
 };
 
 
 class VRPViolation
 {
 public:
-	double length_violation;
-	int    capacity_violation;
+    double length_violation;
+    int    capacity_violation;
 };
 
 
@@ -86,27 +86,27 @@ public:
 class VRPNeighborhood
 {
 public:
-	int move_type;
-	int node_1, node_2;
-	class VRPMove *Moves;
-	int size;
+    int move_type;
+    int node_1, node_2;
+    class VRPMove *Moves;
+    int size;
 
-	VRPNeighborhood(int n);
+    VRPNeighborhood(int n);
 };
 
 struct VRPSegment
 {
-	/// 
-	/// Contains information about a particular segment of
-	/// a route.
-	///
+    /// 
+    /// Contains information about a particular segment of
+    /// a route.
+    ///
 
-	int segment_start;
-	int segment_end;
+    int segment_start;
+    int segment_end;
 
-	int num_custs;
-	int load;
-	double len;
+    int num_custs;
+    int load;
+    double len;
 
 };
 
