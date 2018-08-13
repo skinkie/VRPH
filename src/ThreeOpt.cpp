@@ -13,7 +13,11 @@
 #include "VRPH.h"
 
 // SEARCH
-bool ThreeOpt::route_search(class VRP *V, int r, int rules)
+bool ThreeOpt::search(class VRP *V, int r, int rules
+#ifdef LOCAL_SEARCH_STATISTICS
+    , int& ntried, int& nbetter, int& nbest
+#endif
+    )
 {
     ///
     /// Searches for a Three-Opt move in route r.
@@ -29,11 +33,17 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
     int e11, e12, e21, e22, e31, e32;
     // The edges involved in the move: e1, e2, e3
 
+#ifdef LOCAL_SEARCH_STATISTICS
+    ntried = 0;
+    nbetter = 0;
+    nbest = 0;
+#endif
 
+    int better_cmp_res;
     int accept_type=VRPH_FIRST_ACCEPT;
 
     // Initialize to null edges
-    e11=e12=e21=e22=e31=e32=0;    
+    e11=e12=e21=e22=e31=e32=0;
 
     if( (rules & VRPH_USE_NEIGHBOR_LIST) > 0)
         report_error("%s: neighbor_list not used in 3OPT search--searches all nodes in route\n",__FUNCTION__);
@@ -55,13 +65,13 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
 
     b= V->route[r].start;
     a=VRPH_MAX(V->pred_array[b],0);
-    c=b;
+    c = b;
     if(c==VRPH_DEPOT)
         return false;
     d=VRPH_MAX(V->next_array[c],0);
     if(d==VRPH_DEPOT)
         return false;
-    e=d;
+    e = d;
     if(e==VRPH_DEPOT)
         return false;
     f=VRPH_MAX(V->next_array[e],0);
@@ -78,7 +88,7 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
     int *old_sol=NULL;
     if(rules & VRPH_TABU)
     {
-        // Remember the original solution 
+        // Remember the original solution
         old_sol=new int[V->num_original_nodes+2];
         V->export_solution_buff(old_sol);
     }
@@ -97,12 +107,18 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
             d=VRPH_MAX(V->next_array[c],0);
             e = d;
             do
-            {    
+            {
                 f=VRPH_MAX(V->next_array[e],0);
 
+#ifdef LOCAL_SEARCH_STATISTICS
+                ntried++;
+#endif
                 // Evaluate the move!
                 if(evaluate(V,a,b,c,d,e,f,rules,&M)==true)
                 {
+#ifdef LOCAL_SEARCH_STATISTICS
+                    nbetter++;
+#endif
                     if(accept_type==VRPH_FIRST_ACCEPT || ((accept_type==VRPH_LI_ACCEPT)&&M.savings<-VRPH_EPSILON))
                     {
                         // Make the move
@@ -110,8 +126,11 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
                             report_error("%s: move error 1\n",__FUNCTION__);
                         else
                         {
-                            if(!(rules & VRPH_TABU))
+                            if (!(rules & VRPH_TABU))
                             {
+#ifdef LOCAL_SEARCH_STATISTICS
+                                nbest = 1;
+#endif
                                 return true;
                             }
                             else
@@ -120,6 +139,9 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
                                 // or revert to old_sol if not and continue to search.
                                 if(V->check_tabu_status(&M, old_sol))
                                 {
+#ifdef LOCAL_SEARCH_STATISTICS
+                                    nbest = 1;
+#endif
                                     delete [] old_sol;
                                     return true; // The move was ok
                                 }
@@ -130,9 +152,16 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
 
                     if(accept_type==VRPH_BEST_ACCEPT || accept_type==VRPH_LI_ACCEPT)
                     {
-                        if(M.is_better(V, &BestM, rules))
+                        better_cmp_res = M.is_better(V, &BestM, rules);
+#ifdef LOCAL_SEARCH_STATISTICS
+                        // move improves the best, so reset the best moves counter
+                        if (better_cmp_res>0)
+                            nbest = 0;
+                        if (better_cmp_res >= 0)
+                            nbest++;
+#endif
+                        if (better_cmp_res>0)
                             BestM=M;
-
                     }
                 }
                 e=f;
@@ -165,6 +194,15 @@ bool ThreeOpt::route_search(class VRP *V, int r, int rules)
                     delete [] old_sol;
                     return true; // The move was ok
                 }
+#ifdef LOCAL_SEARCH_STATISTICS
+                // JHR: this is in fact a poor way of handling the situation: There may be many as good
+                //  "best" moves, that is, they all improve the incumbent solution equally, but as they
+                //  are not stored and tabu check is done at the end, they are lost.
+                //  a solution would be to store all the "best" moves and check that they are not tabu
+                //  in the end.
+                nbest = 0;
+#endif
+
                 // else we reverted back - search over
                 delete [] old_sol;
                 return false;
@@ -191,7 +229,7 @@ bool ThreeOpt::evaluate(class VRP *V, int a, int b, int c, int d, int e, int f,
     /// finds the most cost effective of the possible moves and
     /// stores the relevant data in the VRPMove M and returns true.
     /// If no satisfactory move is found, the function returns false.
-    ///    
+    ///
 
     V->num_evaluations[THREE_OPT_INDEX]++;
     M->evaluated_savings=false;
@@ -203,7 +241,7 @@ bool ThreeOpt::evaluate(class VRP *V, int a, int b, int c, int d, int e, int f,
     if(rules & VRPH_FIXED_EDGES)
     {
         // Make sure we aren't disturbing fixed edges
-        if( V->fixed[a][b] || V->fixed[c][d] || V->fixed[e][f]) 
+        if( V->fixed[a][b] || V->fixed[c][d] || V->fixed[e][f])
             return false;
 
     }
@@ -276,7 +314,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
 {
     ///
     /// This function makes the actual solution modification involving the Three-Opt
-    /// move with the edges V->d[a][b], V->d[c][d], and V->d[e][f].  
+    /// move with the edges V->d[a][b], V->d[c][d], and V->d[e][f].
     ///
 
     int a,b,c,d,e,f;
@@ -297,7 +335,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
     else
         c_route= V->route_num[d];
 
-    if(e!=VRPH_DEPOT) 
+    if(e!=VRPH_DEPOT)
         e_route= V->route_num[e];
     else
         e_route= V->route_num[f];
@@ -383,7 +421,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
         //     \____/    \____/
         if(type==3)
         {
-            V->max_route_length=VRP_INFINITY;    
+            V->max_route_length=VRP_INFINITY;
             V->max_veh_capacity=VRP_INFINITY;
 
             if(a==VRPH_DEPOT)
@@ -505,7 +543,7 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
         //     \_______/  
         if(type==5)
         {
-            V->max_route_length=VRP_INFINITY;    
+            V->max_route_length=VRP_INFINITY;
             V->max_veh_capacity=VRP_INFINITY;
 
             // Before any operation, store the jumps to the next/pred route.
@@ -575,12 +613,12 @@ bool ThreeOpt::move(class VRP *V, VRPMove *M)// int a, int b, int c, int d, int 
         //      \_________/  
         if(type==6)
         {
-            V->max_route_length=VRP_INFINITY;    
+            V->max_route_length=VRP_INFINITY;
             V->max_veh_capacity=VRP_INFINITY;
 
             // Before any operation, store the jumps to the next/pred route.
             //   These are needed in case a or f are VRPH_DEPOT.
-            int prev_end = VRPH_ABS(V->pred_array[b]);
+            int prev_end=VRPH_ABS(V->pred_array[b]);
             int prev_start = VRPH_ABS(V->next_array[e]);
 
             if(f==VRPH_DEPOT)

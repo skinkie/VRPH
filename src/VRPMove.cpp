@@ -23,7 +23,7 @@ VRPMove::VRPMove()
     this->total_number_of_routes=-1;
 
     this->arrival_times=NULL;
-    
+
 }
 
 VRPMove::VRPMove(int n)
@@ -46,19 +46,19 @@ VRPMove::~VRPMove()
 }
 
 
-bool VRPMove::is_better(VRP *V, VRPMove *M2, int rules)
+int VRPMove::is_better(VRP *V, VRPMove *M2, int rules)
 {
     ///
     /// Evaluates this move versus M2 in terms of the provided
-    /// rules.  Returns true of this move is superior to M2
-    /// and false otherwise.
+    /// rules.  Returns 1 of this move is superior to M2, 0 if
+    /// it is as good and -1 otherwise.
     ///
 
     if(M2->num_affected_routes==-1)
     {
         // M2 does not have meaningful information, so return true
         // Probably has savings=VRP_INFINITY
-        return true;
+        return 1;
     }
 
 
@@ -68,10 +68,12 @@ bool VRPMove::is_better(VRP *V, VRPMove *M2, int rules)
     {
         // Decide in terms of total length only
 
-        if(this->savings <= M2->savings)
-            return true;
-        else
-            return false;
+        if(this->savings < M2->savings)
+            return 1;
+        else if (this->savings > M2->savings)
+            return -1;
+        else // (this->savings == M2->savings)
+            return 0;
 
     }
 
@@ -81,19 +83,21 @@ bool VRPMove::is_better(VRP *V, VRPMove *M2, int rules)
     {
         // First check the # of routes in the solution produced by the two moves
         if(this->total_number_of_routes<M2->total_number_of_routes)
-            return true;
+            return 1;
 
         if(this->total_number_of_routes>M2->total_number_of_routes)
-            return false;
+            return -1;
 
         // Otherwise the # of routes remains the same
         // If the two moves affect diff. #'s of routes, then just use the total length
         if(this->num_affected_routes != M2->num_affected_routes)
         {
             if(this->savings < M2->savings)
-                return true;
-            else
-                return false;
+                return 1;
+            else if (this->savings > M2->savings)
+                return -1;
+            else // (this->savings == M2->savings)
+                return 0;
         }
 
         // If they affect the same # of routes, minimize the sum of the squares
@@ -110,17 +114,19 @@ bool VRPMove::is_better(VRP *V, VRPMove *M2, int rules)
 
         if(sq>sq2)
             // this move is better
-            return true;
+            return 1;
         if(sq2<sq)
             // M2 is better
-            return false;
+            return -1;
 
         // Otherwise, sq==sq2, use the savings
 
-        if(this->savings <= M2->savings)
-            return true;
-        else
-            return false;
+        if(this->savings < M2->savings)
+            return 1;
+        else if (this->savings > M2->savings)
+            return -1;
+        else // (this->savings == M2->savings)
+            return 0;
     }
 
 

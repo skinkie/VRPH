@@ -17,7 +17,7 @@ double VRP::RTR_solve(int heuristics, int intensity, int max_stuck, int max_pert
                       bool use_cutoff, clock_t ticks_left)
 {
     ///
-    /// Uses the given parameters to generate a 
+    /// Uses the given parameters to generate a
     /// VRP solution via record-to-record travel.
     /// Assumes that data has already been imported into V and that we have
     /// some existing solution.
@@ -110,10 +110,10 @@ double VRP::RTR_solve(int heuristics, int intensity, int max_stuck, int max_pert
     normalize_route_numbers();
 
     ctr=0;
-    
+
     time_t start=clock();
     time_t stop=0;
-    
+
 uphill:
     // Start an uphill phase using the following "rules":
     double beginning_best=this->best_total_route_length;
@@ -121,7 +121,7 @@ uphill:
 
     if(verbose)
         printf("Uphill starting at %5.2f\n",this->total_route_length);
-    
+
     for(int k=1;k<intensity;k++)
     {
 #if VERIFY_ALL
@@ -130,7 +130,7 @@ uphill:
         stop = clock();
         if (use_cutoff && stop-start>ticks_left)
             break;
-            
+
         start_val=total_route_length;
 
         if(heuristics & ONE_POINT_MOVE)
@@ -144,7 +144,13 @@ uphill:
                 if(fixed && !check_fixed_edges("Before 1PM\n"))
                     fprintf(stderr,"Error before OPM search(%d)\n",perm[i-1]);
 #endif
+
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                OPM.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                 OPM.search(this, perm[i - 1], rules);
+#endif
 
 #if FIXED_DEBUG
                 if(fixed && !check_fixed_edges("After 1PM\n"))
@@ -163,7 +169,14 @@ uphill:
                 random_permutation(perm, this->num_nodes);
 
             for (i = 1; i <= n; i++)
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                TPM.search(this, perm[i - 1], rules + VRPH_INTER_ROUTE_ONLY, ntried, nbetter, nbest);
+#else
                 TPM.search(this, perm[i - 1], rules + VRPH_INTER_ROUTE_ONLY);
+#endif
+            }
 
             //check_fixed_edges("After 2PM\n");
 
@@ -178,7 +191,7 @@ uphill:
             if(random)
                 random_permutation(perm, this->num_nodes);
 
-            for(i=1;i<=n;i++)    
+            for(i=1;i<=n;i++)
                 ThreePM.search(this,perm[i-1],rules + VRPH_INTER_ROUTE_ONLY);
 
             //check_fixed_edges("After 3PM\n");
@@ -196,6 +209,10 @@ uphill:
 
             for(i=1;i<=n;i++)
             {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                TO.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                 TO.search(this, perm[i - 1], rules);
 #if VERIFY_ALL
               this->verify_routes("VRP::RTR_solve: after two-opt");
@@ -205,7 +222,7 @@ uphill:
             //check_fixed_edges("After TO\n");
 
 
-        }        
+        }
 
 #if VERIFY_ALL
         this->verify_routes("VRP::RTR_solve: after two-opt");
@@ -216,13 +233,13 @@ uphill:
             if(random)
                 random_permutation(perm, this->num_nodes);
 
-            for(i=1;i<=n;i++)    
+            for(i=1;i<=n;i++)
                 OR.search(this,perm[i-1],4,rules);
 
-            for(i=1;i<=n;i++)    
+            for(i=1;i<=n;i++)
                 OR.search(this,perm[i-1],3,rules);
 
-            for(i=1;i<=n;i++)    
+            for(i=1;i<=n;i++)
                 OR.search(this,perm[i-1],2,rules);
 
             //check_fixed_edges("After OR\n");
@@ -234,8 +251,15 @@ uphill:
             normalize_route_numbers();
             R=total_number_of_routes;
 
-            for(i=1; i<=R; i++)   
-                ThreeO.route_search(this,i,rules-neighbor_list);
+            for(i=1; i<=R; i++)
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                ThreeO.search(this,i,rules-neighbor_list, ntried, nbetter, nbest);
+#else
+                ThreeO.search(this,i,rules-neighbor_list);
+#endif
+            }
 
             //check_fixed_edges("After 3O\n");
 
@@ -247,10 +271,10 @@ uphill:
             this->find_neighboring_routes();
             R=total_number_of_routes;
 
-            for(i=1; i<=R-1; i++)    
+            for(i=1; i<=R-1; i++)
             {
                 for(j=0;j<1;j++)
-                    CE.route_search(this,i, route[i].neighboring_routes[j],rules-neighbor_list); 
+                    CE.route_search(this,i, route[i].neighboring_routes[j],rules-neighbor_list);
             }
 
             //check_fixed_edges("After CE\n");
@@ -294,7 +318,7 @@ downhill:
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-            
+
             // One Point Move
             start_val=total_route_length;
 
@@ -302,11 +326,17 @@ downhill:
                 random_permutation(perm, this->num_nodes);
 
             for(i=1;i<=n;i++)
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                OPM.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                 OPM.search(this, perm[i - 1], rules);
-
+#endif
+            }
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
 
         }
 
@@ -322,7 +352,7 @@ downhill:
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-            
+
             // Two Point Move
             start_val=total_route_length;
 
@@ -330,10 +360,17 @@ downhill:
                 random_permutation(perm, this->num_nodes);
 
             for (i = 1; i <= n; i++)
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                TPM.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                 TPM.search(this,perm[i-1],rules);
+#endif
+            }
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
 
         }
 
@@ -350,17 +387,24 @@ downhill:
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-                
+
             start_val=total_route_length;
 
             if(random)
                 random_permutation(perm, this->num_nodes);
 
-            for(i=1;i<=n;i++) 
+            for(i=1;i<=n;i++)
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                TO.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                 TO.search(this, perm[i - 1], rules);
+#endif
+            }
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
         }
 
         // Now do both intra and inter
@@ -378,10 +422,17 @@ downhill:
                 random_permutation(perm, this->num_nodes);
 
             for(i=1;i<=n;i++)
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                TO.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                 TO.search(this, perm[i - 1], rules);
+#endif
+            }
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
         }
     }
 
@@ -393,18 +444,18 @@ downhill:
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-                
+
             // Three Point Move
             start_val=total_route_length;
 
             if(random)
                 random_permutation(perm, this->num_nodes);
 
-            for(i=1;i<=n;i++)    
+            for(i=1;i<=n;i++)
                 ThreePM.search(this,perm[i-1],rules);
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
 
         }
     }
@@ -420,13 +471,13 @@ downhill:
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-                
+
             // OrOpt
             start_val=total_route_length;
             if(random)
                 random_permutation(perm, this->num_nodes);
 
-            for(i=1;i<=n;i++)    
+            for(i=1;i<=n;i++)
                 OR.search(this,perm[i-1],4,rules);
             for(i=1;i<=n;i++)
                 OR.search(this,perm[i-1],3,rules);
@@ -435,7 +486,7 @@ downhill:
 
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
         }
     }
 
@@ -449,15 +500,22 @@ downhill:
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-                
+
             // 3OPT
             start_val=total_route_length;
 
             for (i = 1; i <= R; i++)
-                ThreeO.route_search(this,i,rules);
+            {
+#ifdef LOCAL_SEARCH_STATISTICS
+                int ntried, nbetter, nbest;
+                ThreeO.search(this, i, rules, ntried, nbetter, nbest);
+#else
+                ThreeO.search(this, i, rules);
+#endif
+            }
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
-                break; 
+                break;
         }
     }
 
@@ -470,17 +528,17 @@ downhill:
 
         rules=VRPH_DOWNHILL+objective+VRPH_INTRA_ROUTE_ONLY+ random +fixed + accept_type;
 
-        for(i=1; i<=R-1; i++)    
+        for(i=1; i<=R-1; i++)
         {
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-                
+
             for(j=0;j<=1;j++)
-                CE.route_search(this,i, route[i].neighboring_routes[j], rules); 
+                CE.route_search(this,i, route[i].neighboring_routes[j], rules);
         }
     }
-    
+
     stop = clock();
     if (!use_cutoff || stop-start<ticks_left)
     {
@@ -493,7 +551,7 @@ downhill:
             this->best_total_route_length);
 
 
-        if(total_route_length < record-VRPH_EPSILON)    
+        if(total_route_length < record-VRPH_EPSILON)
         {
             // New record - reset ctr
             ctr=1;
@@ -536,7 +594,7 @@ downhill:
             printf("BEST OBJ:  %f\n",best_total_route_length-total_service_time);
     }
 
-    delete [] perm; 
+    delete [] perm;
 
     // Import the best solution found
     this->import_solution_buff(best_sol_buff);
@@ -551,7 +609,7 @@ downhill:
 
 double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                      int iters_per_loop, int num_loops, int nlist_size, bool verbose,
-                     bool use_cutoff, clock_t ticks_left)    
+                     bool use_cutoff, clock_t ticks_left)
 {
     ///
     /// Uses the given parameters to generate a VRP solution using Simulated Annealing.
@@ -584,7 +642,7 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
 
     if(heuristics & VRPH_MINIMIZE_NUM_ROUTES)
         objective=VRPH_MINIMIZE_NUM_ROUTES;
-    
+
     n=num_nodes;
 
     // The perm[] array will contain all the nodes in the current solution
@@ -639,7 +697,7 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
         if(verbose)
         {
             printf("\nctr=%d of %d, temp=%f, obj=%f (overall best=%f; worst=%f)\n",ctr,num_loops,
-                this->temperature, 
+                this->temperature,
                 this->total_route_length,this->best_total_route_length,worst_obj);
             fflush(stdout);
         }
@@ -655,16 +713,22 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
             stop = clock();
             if (use_cutoff && stop-start>ticks_left)
                 break;
-            
+
             start_val=total_route_length;
             if(heuristics & THREE_OPT)
             {
                 rules=VRPH_SIMULATED_ANNEALING+VRPH_INTRA_ROUTE_ONLY+random+fixed+objective;
                 normalize_route_numbers();
                 R=total_number_of_routes;
-                for(i=1; i<=R; i++)    
+                for(i=1; i<=R; i++)
                 {
-                    ThreeO.route_search(this,i,rules);
+#ifdef LOCAL_SEARCH_STATISTICS
+                    int ntried, nbetter, nbest;
+                    ThreeO.search(this, i, rules, ntried, nbetter, nbest);
+#else
+                    ThreeO.search(this, i, rules);
+#endif
+
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
@@ -677,10 +741,16 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                 if(random)
                     random_permutation(perm, this->num_nodes);
 
-                for(i=1;i<=n;i++)    
+                for(i=1;i<=n;i++)
                 {
 
+
+#ifdef LOCAL_SEARCH_STATISTICS
+                    int ntried, nbetter, nbest;
+                    OPM.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                     OPM.search(this, perm[i - 1], rules);
+#endif
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
@@ -694,9 +764,15 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                 if(random)
                     random_permutation(perm, this->num_nodes);
 
-                for(i=1;i<=n;i++)    
+                for(i=1;i<=n;i++)
                 {
+
+#ifdef LOCAL_SEARCH_STATISTICS
+                    int ntried, nbetter, nbest;
+                    TPM.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                     TPM.search(this,perm[i-1],rules);
+#endif
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
@@ -711,13 +787,19 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                 if(random)
                     random_permutation(perm, this->num_nodes);
 
-                for(i=1;i<=n;i++)    
+                for(i=1;i<=n;i++)
                 {
+
+#ifdef LOCAL_SEARCH_STATISTICS
+                    int ntried, nbetter, nbest;
+                    TO.search(this, perm[i - 1], rules, ntried, nbetter, nbest);
+#else
                     TO.search(this, perm[i - 1], rules);
+#endif
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
-            }        
+            }
 
             if(heuristics & THREE_POINT_MOVE)
             {
@@ -726,7 +808,7 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                     random_permutation(perm, this->num_nodes);
 
 
-                for(i=1;i<=n;i++)    
+                for(i=1;i<=n;i++)
                 {
                     ThreePM.search(this,perm[i-1],rules);
                     if(this->total_route_length > worst_obj)
@@ -740,14 +822,14 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                 if(random)
                     random_permutation(perm, this->num_nodes);
 
-                for(i=1;i<=n;i++)    
+                for(i=1;i<=n;i++)
                 {
                     OR.search(this,perm[i-1],3,rules);
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }
 
-                for(i=1;i<=n;i++)    
+                for(i=1;i<=n;i++)
                 {
                     OR.search(this,perm[i-1],2,rules);
                     if(this->total_route_length > worst_obj)
@@ -765,7 +847,7 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                     random_permutation(perm, this->num_nodes);
 
 
-                for(i=1; i<=R-1; i++)    
+                for(i=1; i<=R-1; i++)
                 {
                     for(j=0;j<=1;j++)
                     {
@@ -774,9 +856,9 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                             worst_obj=this->total_route_length;
                     }
                 }
-            }            
+            }
         }
-        
+
         stop = clock();
         if (use_cutoff && stop-start>ticks_left)
             break;

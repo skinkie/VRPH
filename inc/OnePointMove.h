@@ -16,7 +16,11 @@
 class OnePointMove
 {
 public:
-    bool search(class VRP *V, int i, int rules);
+    bool search(class VRP *V, int i, int rules
+#ifdef LOCAL_SEARCH_STATISTICS
+        , int& ntried, int& nbetter, int& nbest
+#endif
+    );
     bool route_search(class VRP *V, int r1, int r2, int rules);
 
 private:

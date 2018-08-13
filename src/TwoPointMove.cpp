@@ -14,7 +14,11 @@
 
 
 // SEARCH
-bool TwoPointMove::search(class VRP *V, int j, int rules)
+bool TwoPointMove::search(class VRP *V, int j, int rules
+#ifdef LOCAL_SEARCH_STATISTICS
+    , int& ntried, int& nbetter, int& nbest
+#endif
+    )
 {
     ///
     /// Attempts to find the best Two-Point move involving node j using the specified
@@ -28,6 +32,13 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
     BestM.savings=VRP_INFINITY;
     int i,k;
     int accept_type;
+    int better_cmp_res;
+
+#ifdef LOCAL_SEARCH_STATISTICS
+    ntried = 0;
+    nbetter = 0;
+    nbest = 0;
+#endif
 
     if(j==VRPH_DEPOT)
         return false;
@@ -39,7 +50,7 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
 
         // Make sure we aren't disturbing fixed edges
 
-        if( V->fixed[i][j] || V->fixed[j][k] ) 
+        if( V->fixed[i][j] || V->fixed[j][k] )
             return false;
     }
 
@@ -55,7 +66,7 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
     int *old_sol=NULL;
     if(rules & VRPH_TABU)
     {
-        // Remember the original solution 
+        // Remember the original solution
         old_sol=new int[V->num_original_nodes+2];
         V->export_solution_buff(old_sol);
     }
@@ -67,29 +78,42 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
     {
         k=V->search_space[i];
 
+        // VRPH_DEPOT not allowed in TwoPointMove
         if(k!=VRPH_DEPOT && k!=j)
         {
-            // VRPH_DEPOT not allowed in TwoPointMove
-
+#ifdef LOCAL_SEARCH_STATISTICS
+            ntried++;
+#endif
             if(evaluate(V,j,k,rules,&M)==true)
             {
+#ifdef LOCAL_SEARCH_STATISTICS
+                nbetter++;
+#endif
                 // Feasible move found
                 if(accept_type==VRPH_FIRST_ACCEPT || (accept_type==VRPH_LI_ACCEPT && M.savings<-VRPH_EPSILON) )
                 {
                     // make the move
-
                     if(move(V, &M)==false)
                         report_error("%s: move error 1\n",__FUNCTION__);
                     else
                     {
-                        if(!(rules & VRPH_TABU))
+
+                        if (!(rules & VRPH_TABU))
+                        {
+#ifdef LOCAL_SEARCH_STATISTICS
+                            nbest = 1;
+#endif
                             return true;
+                        }
                         else
                         {
                             // Check VRPH_TABU status of move - return true if its ok
                             // or revert to old_sol if not and continue to search.
                             if(V->check_tabu_status(&M, old_sol))
                             {
+#ifdef LOCAL_SEARCH_STATISTICS
+                                nbest = 1;
+#endif
                                 delete [] old_sol;
                                 return true; // The move was ok
                             }
@@ -102,10 +126,17 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
 
                 if(accept_type==VRPH_BEST_ACCEPT || accept_type==VRPH_LI_ACCEPT )
                 {
+                    better_cmp_res = M.is_better(V, &BestM, rules);
+#ifdef LOCAL_SEARCH_STATISTICS
+                    // move improves the best, so reset the best moves counter
+                    if (better_cmp_res>0)
+                        nbest = 0;
+                    if (better_cmp_res>=0)
+                        nbest++;
+#endif
                     // compare to best move so far
-                    if(M.is_better(V, &BestM, rules))
+                    if (better_cmp_res>0)
                         BestM=M;
-
                 }
 
             }
@@ -132,11 +163,11 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
     if(move(V,&BestM)==true)
     {
         if(!(rules & VRPH_TABU))
-            return true;                    
+            return true;
     }
 
     if(rules & VRPH_TABU)
-    {    
+    {
         // Check VRPH_TABU status of move - return true if its ok
         // or revert to old_sol if not and return
         if(V->check_tabu_status(&M, old_sol))
@@ -146,6 +177,14 @@ bool TwoPointMove::search(class VRP *V, int j, int rules)
         }
         else
         {
+#ifdef LOCAL_SEARCH_STATISTICS
+            // JHR: this is in fact a poor way of handling the situation: There may be many as good
+            //  "best" moves, that is, they all improve the incumbent solution equally, but as they
+            //  are not stored and tabu check is done at the end, they are lost.
+            //  a solution would be to store all the "best" moves and check that they are not tabu
+            //  in the end.
+            nbest = 0;
+#endif
             delete [] old_sol;
             return false;
         }
@@ -217,7 +256,7 @@ bool TwoPointMove::route_search(class VRP *V, int r1, int r2, int rules)
                 {
 
                     // See if it's the best so far...
-                    if(M.is_better(V, &BestM, rules))
+                    if (M.is_better(V, &BestM, rules)>0)
                         BestM=M;
                 }
 
@@ -256,13 +295,13 @@ bool TwoPointMove::route_search(class VRP *V, int r1, int r2, int rules)
 bool TwoPointMove::evaluate(class VRP *V, int j, int b, int rules, VRPMove *M)
 {
     ///
-    /// This function evaluates the move of swapping the positions of j 
+    /// This function evaluates the move of swapping the positions of j
     /// and b in the current solution.  If a satisfactory move is found subject
     /// to the provided rules, then the solution modification data is placed
     /// in the VRPMove M and the function returns true.  Returns false otherwise.
     ///
 
-    V->num_evaluations[TWO_POINT_MOVE_INDEX]++;    
+    V->num_evaluations[TWO_POINT_MOVE_INDEX]++;
 
     if(V->routed[j]==false || V->routed[b]==false || j==b)
         return false;
@@ -278,7 +317,7 @@ bool TwoPointMove::evaluate(class VRP *V, int j, int b, int rules, VRPMove *M)
         i=VRPH_MAX(V->pred_array[j],VRPH_DEPOT);
         k=VRPH_MAX(V->next_array[j],VRPH_DEPOT);
 
-        if( V->fixed[a][b] || V->fixed[b][c] || V->fixed[i][j] || V->fixed[j][k] ) 
+        if( V->fixed[a][b] || V->fixed[b][c] || V->fixed[i][j] || V->fixed[j][k] )
             return false;
     }
 
