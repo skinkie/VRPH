@@ -1,20 +1,30 @@
-This version of VRPH is a fork of a fork of [COIN's VRPH](https://projects.coin-or.org/VRPH),
-with a number of bugs fixed, features added, and code and usability
-improvements made.  The first commit is a copy of VRPH 1.0.
+This version of VRPH is a fork of a fork of [COIN's VRPH]
+(https://projects.coin-or.org/VRPH), with a number of bugs
+fixed, features added, and code and usability improvements.
 
-The major changes to the 1.0 version are:
+The first commit is a copy of VRPH 1.0, and the  major
+changes to it are:
 
-- Multiple day cases are read correctly (geoffleyland, 83d1433)
-- Performance improvements for Flip operation (geoffleyland, 4325f07, d0e9479) 
-- Complier warnings and non-critical bugs fixed, code cleanup (geoffleyland, juherask)
-- Improved and more clearly formatted output (geoffleyland, juherask)
-- The command line usage of different applications (rtr, ej, sa
-   etc.) has been unified (juherask, 573cc5a)
-- All applications can be given a cutoff parameter that interrupts optimization after specified time (juherask, 573cc5a)
-- One can specify seed for RNG, and all streams are initialized (juherask, 77edebc)
-- Several critical bugs in 3-opt move has been fixed (juherask, 48b1fd6)
+- Multiple day cases are read correctly 
+   (geoffleyland, 83d1433)
+- Performance improvements for Flip operation
+   (geoffleyland, 4325f07, d0e9479) 
+- Many complier warnings and non-critical bugs fixed,
+   code cleanup (geoffleyland, juherask)
+- Improved and cleaner output
+   (geoffleyland, juherask)
+- Command line of different applications is unified
+   (juherask, 573cc5a)
+- All applications can be given a cutoff parameter that
+   interrupts optimization after specified time. 
+   (juherask, 573cc5a)
+- One can specify seed for RNG, and all streams are
+    initialized (juherask, 77edebc)
+- Several critical bugs in 3-opt move has been fixed
+   (juherask, 48b1fd6)
 
-Additionally, there is a branch local_search_stats which includes additional data gathering on local search operations.
+Additionally, there is a branch local_search_stats which
+includes additional data gathering on local search operations.
 
 What follows is the original README: 
 
