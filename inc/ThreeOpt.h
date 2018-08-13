@@ -16,7 +16,7 @@
 class ThreeOpt
 {
 public:
-    bool route_search(class VRP *V, int r, int criteria);
+    bool search(class VRP *V, int r, int criteria);
 
 private:
     bool evaluate(class VRP *V, int a, int b, int c, int d, int e, int f, int criteria, VRPMove *M);

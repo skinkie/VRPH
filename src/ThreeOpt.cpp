@@ -13,7 +13,7 @@
 #include "VRPH.h"
 
 // SEARCH
-bool ThreeOpt::route_search(class VRP *V, int r, int rules)
+bool ThreeOpt::search(class VRP *V, int r, int rules)
 {
     ///
     /// Searches for a Three-Opt move in route r.

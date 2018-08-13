@@ -235,7 +235,7 @@ uphill:
             R=total_number_of_routes;
 
             for(i=1; i<=R; i++)   
-                ThreeO.route_search(this,i,rules-neighbor_list);
+                ThreeO.search(this,i,rules-neighbor_list);
 
             //check_fixed_edges("After 3O\n");
 
@@ -454,7 +454,7 @@ downhill:
             start_val=total_route_length;
 
             for (i = 1; i <= R; i++)
-                ThreeO.route_search(this,i,rules);
+                ThreeO.search(this,i,rules);
 
             if(VRPH_ABS(total_route_length-start_val)<VRPH_EPSILON)
                 break; 
@@ -664,7 +664,7 @@ double VRP::SA_solve(int heuristics, double start_temp, double cool_ratio,
                 R=total_number_of_routes;
                 for(i=1; i<=R; i++)    
                 {
-                    ThreeO.route_search(this,i,rules);
+                    ThreeO.search(this,i,rules);
                     if(this->total_route_length > worst_obj)
                         worst_obj=this->total_route_length;
                 }

@@ -1,6 +1,6 @@
 # Set compiler and flags
 CC=g++
-CFLAGS= -O3 -Wall -Wmost
+CFLAGS= -O3 -Wall
 
 # Set directory for static library and binaries
 # Defaults to ./lib and ./bin
