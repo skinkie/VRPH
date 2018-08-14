@@ -33,9 +33,9 @@ endif
 # and modify the directories below
 HAS_PLPLOT= 0
 ifeq ($(HAS_PLPLOT),1)
-PLPLOT_INC_DIR= -I$(HOME)/PLPLOT/plplot-5.9.4/x86_64build/include/plplot/
-PLPLOT_LIB_DIR= -L$(HOME)/PLPLOT/plplot-5.9.4/x86_64build/lib/
-PLPLOT_LIB= -lplplotd -lqsastime -lnistcd
+PLPLOT_INC_DIR= -I/usr/include/plplot/
+PLPLOT_LIB_DIR= -L/usr/lib/x86_64-linux-gnu/
+PLPLOT_LIB= -lplplotd -lqsastime
 PLDEF=-DHAS_PLPLOT
 else
 PLPLOT_INC_DIR=

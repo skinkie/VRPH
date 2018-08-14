@@ -130,7 +130,7 @@ bool VRP::plot(const char *filename, int options, int orientation)
     // Set the symbol size
     plssym(0,.5);
     // Set the line width
-    plwid (10);
+    plwidth(10);
 
     double symbol_size=0;
     // Can roughly base this on num_nodes
@@ -140,7 +140,7 @@ bool VRP::plot(const char *filename, int options, int orientation)
         plssym(0,.6);
         symbol_size=.6;
         // Set the line width
-        plwid (9);
+        plwidth(9);
     }
 
     if(this->num_nodes>=200 && this->num_nodes<500)
@@ -149,7 +149,7 @@ bool VRP::plot(const char *filename, int options, int orientation)
         plssym(0,.4);
         symbol_size=.4;
         // Set the line width
-        plwid (8);
+        plwidth(8);
     }
 
     if(this->num_nodes>=500)
@@ -158,7 +158,7 @@ bool VRP::plot(const char *filename, int options, int orientation)
         plssym(0,.2);
         symbol_size=.2;
         // Set the line width
-        plwid (8);
+        plwidth(8);
     }
 
     int R;
@@ -390,7 +390,7 @@ bool VRP::plot_route(int r, const char *filename)
 
 
     // Set the line width
-    plwid (0);
+    plwidth(0);
 
     // Draw the route in red
     plcol0(VRPH_RED);    
