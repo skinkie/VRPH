@@ -1,6 +1,8 @@
 # Set compiler and flags
 CC=g++
 CFLAGS= -O3 -Wall
+#-Wmost
+LINKER_FLAGS= -static -static-libgcc -static-libstdc++
 
 # Set directory for static library and binaries
 # Defaults to ./lib and ./bin
@@ -20,7 +22,7 @@ LIBS= -lvrph -lm
 
 # Set to 0 if you don't have/want Doxygen installed for
 # documentation
-HAS_DOXYGEN=1
+HAS_DOXYGEN=0
 ifeq ($(HAS_DOXYGEN),1)
 DOX=doxygen
 DOXYFILE=./Doxyfile
@@ -31,7 +33,7 @@ endif
 
 # Set to 0 if you don't have PLPLOT, 1 if you do
 # and modify the directories below
-HAS_PLPLOT= 0
+HAS_PLPLOT=0
 ifeq ($(HAS_PLPLOT),1)
 PLPLOT_INC_DIR= -I/usr/include/plplot/
 PLPLOT_LIB_DIR= -L/usr/lib/x86_64-linux-gnu/
@@ -46,7 +48,7 @@ endif
 
 # Set to 0 if you don't have OSI and GLPK, 1 if you do
 # and correct the directories below
-HAS_OSI_GLPK= 0
+HAS_OSI_GLPK=0
 ifeq ($(HAS_OSI_GLPK),1)
 GLPK_INC_DIR= -I$(HOME)/GLPK/include
 GLPK_LIB_DIR= -L$(HOME)/GLPK/lib
@@ -99,36 +101,36 @@ $(VRPH_LIB): $(OBJS)
 # An implementation of an RTR-based algorithm for generating solutions
 vrp_rtr: $(OBJS) $(RTR_SRC)
 	mkdir -p $(VRPH_BIN_DIR)
-	$(CC) $(CFLAGS) $(PLDEF) $(PLPLOT_INC_DIR) $(RTR_SRC) $(INC_DIR) $(LIB_DIR) $(PLPLOT_LIB_DIR) $(LIBS) $(PLPLOT_LIB) -o $(RTR_EXE)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) $(PLDEF) $(PLPLOT_INC_DIR) $(RTR_SRC) $(INC_DIR) $(LIB_DIR) $(PLPLOT_LIB_DIR) $(LIBS) $(PLPLOT_LIB) -o $(RTR_EXE)
 
 # An implementation of a Simulated Annealing-based algorithm for generating solutions
 vrp_sa: $(OBJS) $(SA_SRC)
 	mkdir -p $(VRPH_BIN_DIR)
-	$(CC) $(CFLAGS) $(PLDEF) $(PLPLOT_INC_DIR) $(SA_SRC) $(INC_DIR) $(LIB_DIR) $(PLPLOT_LIB_DIR) $(LIBS) $(PLPLOT_LIB) -o $(SA_EXE)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) $(PLDEF) $(PLPLOT_INC_DIR) $(SA_SRC) $(INC_DIR) $(LIB_DIR) $(PLPLOT_LIB_DIR) $(LIBS) $(PLPLOT_LIB) -o $(SA_EXE)
 
 # An implementation of a simple routine that demonstrates the Clarke Wright and Sweep algorithms
 vrp_init: $(OBJS) $(INIT_SRC)
 	mkdir -p $(VRPH_BIN_DIR)
-	$(CC) $(CFLAGS) $(INIT_SRC) $(INC_DIR) $(LIB_DIR) $(LIBS) -o $(INIT_EXE)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) $(INIT_SRC) $(INC_DIR) $(LIB_DIR) $(LIBS) -o $(INIT_EXE)
 
 # An implementation of a tool to plot solutions using PLPLOT
 vrp_plot: $(OBJS) $(PLOT_SRC)
 ifeq ($(HAS_PLPLOT),1)
 	mkdir -p $(VRPH_BIN_DIR)
-	$(CC) $(CFLAGS) $(INC_DIR) $(PL_DEF) $(PLPLOT_INC_DIR) $(PLPLOT_LIB_DIR) $(LIB_DIR) $(PLOT_SRC) $(LIBS) $(PLPLOT_LIB) -o $(PLOT_EXE)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) $(INC_DIR) $(PL_DEF) $(PLPLOT_INC_DIR) $(PLPLOT_LIB_DIR) $(LIB_DIR) $(PLOT_SRC) $(LIBS) $(PLPLOT_LIB) -o $(PLOT_EXE)
 endif
 
 # A utility to improve solutions by ejecting/injecting random neighborhoods
 vrp_ej: $(OBJS) $(EJ_SRC)
 	mkdir -p $(VRPH_BIN_DIR)
-	$(CC) $(CFLAGS) $(INC_DIR) $(EJ_SRC) $(LIB_DIR) $(LIBS) -o $(EJ_EXE)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) $(INC_DIR) $(EJ_SRC) $(LIB_DIR) $(LIBS) -o $(EJ_EXE)
 
 # An implementation combining RTR with GLPK and OSI
 # Only builds if USE_OSI_GLPK=1 above in this makefile
 vrp_sp: $(OBJS) $(SP_SRC)
 ifeq ($(HAS_OSI_GLPK),1)
 	mkdir -p $(VRPH_BIN_DIR)
-	$(CC) $(CFLAGS) $(INC_DIR) $(OSI_INC_DIR) $(GLPK_INC_DIR) $(OSI_LIB_DIR) $(GLPK_LIB_DIR) $(LIB_DIR) $(SP_SRC) $(LIBS) $(GLPK_LIBS) $(OSI_LIBS) -o $(SP_EXE)
+	$(CC) $(CFLAGS) $(LINKER_FLAGS) $(INC_DIR) $(OSI_INC_DIR) $(GLPK_INC_DIR) $(OSI_LIB_DIR) $(GLPK_LIB_DIR) $(LIB_DIR) $(SP_SRC) $(LIBS) $(GLPK_LIBS) $(OSI_LIBS) -o $(SP_EXE)
 endif
 
 
@@ -171,7 +173,7 @@ endif
 # Doxygen automatic documentation generation
 doc: $(DOXYFILE)
 	@echo Creating Doxygen documentation in ./doc directory
-	mkdir -p ./doc
+	mkdir doc
 	$(DOX) $(DOXYFILE)
 	@echo Run pdflatex or latex on ./doc/latex/refman.tex to create Doxygen manual
 
