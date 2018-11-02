@@ -72,10 +72,9 @@ void VRP::read_TSPLIB_file(const char *node_file)
         {
             if(ans==0)
                 fprintf(stderr,"Unknown string %s found\n",temp);
+                report_error("%s\n",__FUNCTION__);
             else
-                fprintf(stderr,"TSPLIB string %s not supported\n",temp);
-
-            report_error("%s\n",__FUNCTION__);
+                fprintf(stderr,"WARNING: TSPLIB string %s not supported\n",temp);
         }
 
 #if TSPLIB_DEBUG
