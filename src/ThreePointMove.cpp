@@ -506,7 +506,10 @@ bool ThreePointMove::move(VRP *V, VRPMove *M)
 
         V->max_route_length=orig_max_len;
         V->max_veh_capacity=orig_veh_cap;
+
+#if THREE_PM_VERIFY
         V->verify_routes("After ThreePM b==h\n");
+#endif
     }
 
     if(b==k)
@@ -517,8 +520,9 @@ bool ThreePointMove::move(VRP *V, VRPMove *M)
 
         V->max_route_length=orig_max_len;
         V->max_veh_capacity=orig_veh_cap;
+#if THREE_PM_VERIFY
         V->verify_routes("After ThreePM b==k\n");
-
+#endif
     }
 
     if(b!=h && b!=k)
@@ -561,7 +565,9 @@ bool ThreePointMove::move(VRP *V, VRPMove *M)
 
     V->total_number_of_routes=M->total_number_of_routes;
 
+#if THREE_PM_VERIFY
     V->verify_routes("After ThreePM\n");
+#endif
 
     V->capture_best_solution();
     return true;

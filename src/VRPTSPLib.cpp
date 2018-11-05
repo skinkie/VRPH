@@ -48,7 +48,7 @@ const char *UnsupportedTSPLIBStrings[]=    {
     "LOWER_DIAG_ROW","UPPER_COL","LOWER_COL","UPPER_DIAG_COL",
     "LOWER_DIAG_COL","EDGE_LIST","ADJ_LIST","NO_COORDS",
     "EDGE_DATA_SECTION",
-    "TOUR_SECTION"
+    "TOUR_SECTION", "VEHICLES"
 };
 // The number of unsupported TSPLIB strings
 const int NumUnsupportedTSPLIBStrings = 20;
@@ -206,5 +206,5 @@ int VRPCheckTSPLIBString(char *s)
     // Unknown string encountered
     fprintf(stderr,"Unknown string %s encountered\n", s);
     report_error("%s: Error related to TSPLIB string\n");
-    return -1;
+    return 0;
 }

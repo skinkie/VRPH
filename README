@@ -13,7 +13,7 @@ changes to it are:
    code cleanup (geoffleyland, juherask)
 - Improved and cleaner output
    (geoffleyland, juherask)
-- Command line of different applications is unified
+- Command line use of different applications is unified
    (juherask, 573cc5a)
 - All applications can be given a cutoff parameter that
    interrupts optimization after specified time. 

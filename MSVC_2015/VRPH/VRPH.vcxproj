@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,28 +22,29 @@
     <ProjectGuid>{938B0F92-0A0F-45EA-BAE5-E89FAAF76CDB}</ProjectGuid>
     <RootNamespace>VRPH</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -157,6 +158,42 @@
     <ClCompile Include="..\..\src\VRPTabuList.cpp" />
     <ClCompile Include="..\..\src\VRPTSPLib.cpp" />
     <ClCompile Include="..\..\src\VRPUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\inc\ClarkeWright.h" />
+    <ClInclude Include="..\..\inc\Concatenate.h" />
+    <ClInclude Include="..\..\inc\CrossExchange.h" />
+    <ClInclude Include="..\..\inc\Flip.h" />
+    <ClInclude Include="..\..\inc\MoveString.h" />
+    <ClInclude Include="..\..\inc\OnePointMove.h" />
+    <ClInclude Include="..\..\inc\OrOpt.h" />
+    <ClInclude Include="..\..\inc\Osman.h" />
+    <ClInclude Include="..\..\inc\Postsert.h" />
+    <ClInclude Include="..\..\inc\Presert.h" />
+    <ClInclude Include="..\..\inc\randvals.h" />
+    <ClInclude Include="..\..\inc\RNG.h" />
+    <ClInclude Include="..\..\inc\Swap.h" />
+    <ClInclude Include="..\..\inc\SwapEnds.h" />
+    <ClInclude Include="..\..\inc\Sweep.h" />
+    <ClInclude Include="..\..\inc\ThreeOpt.h" />
+    <ClInclude Include="..\..\inc\ThreePointMove.h" />
+    <ClInclude Include="..\..\inc\TwoOpt.h" />
+    <ClInclude Include="..\..\inc\TwoPointMove.h" />
+    <ClInclude Include="..\..\inc\VRP.h" />
+    <ClInclude Include="..\..\inc\VRPConfig.h" />
+    <ClInclude Include="..\..\inc\VRPDebug.h" />
+    <ClInclude Include="..\..\inc\VRPGenerator.h" />
+    <ClInclude Include="..\..\inc\VRPH.h" />
+    <ClInclude Include="..\..\inc\VRPHeuristic.h" />
+    <ClInclude Include="..\..\inc\VRPMove.h" />
+    <ClInclude Include="..\..\inc\VRPNode.h" />
+    <ClInclude Include="..\..\inc\VRPRoute.h" />
+    <ClInclude Include="..\..\inc\VRPSolution.h" />
+    <ClInclude Include="..\..\inc\VRPTabuList.h" />
+    <ClInclude Include="..\..\inc\VRPUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\inc\VRPH.h.bak" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
         fprintf(stderr,"\t-s <seed> will set the random seed\n");
 #endif
         
-        fprintf(stderr,"\t-o <out_file> writes the solution to the provided file\n");
+        fprintf(stderr,"\t-out <out_file> writes the solution to the provided file\n");
         fprintf(stderr,"\t-plot <plot_file> plots the best solution to the provided file\n");
     
         exit(-1);
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if(strcmp(argv[i],"-o")==0)
+        if(strcmp(argv[i],"-out")==0)
         {
             has_outfile=true;
             strcpy(out,argv[i+1]);

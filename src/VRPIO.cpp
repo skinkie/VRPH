@@ -26,6 +26,7 @@ void VRP::read_TSPLIB_file(const char *node_file)
     char line[VRPH_STRING_SIZE];
     char *temp2;
     int max_id = -VRP_INFINITY;
+	int templen;
 
     int ans;
     int x,y,i,j;
@@ -56,7 +57,12 @@ void VRP::read_TSPLIB_file(const char *node_file)
 
         temp=strtok(line,":");
 
-
+		// Trim off the whitespace
+		temp2 = temp;
+		templen = strlen(temp2);
+		while (isspace(temp2[templen - 1])) temp2[--templen] = 0;
+		while (*temp2 && isspace(*temp2)) ++temp2, --templen;
+		memmove(temp, temp2, templen + 1);
 
 #if TSPLIB_DEBUG
         printf("line begins with %s\n",temp);
@@ -65,11 +71,14 @@ void VRP::read_TSPLIB_file(const char *node_file)
         if( (ans=VRPCheckTSPLIBString(temp))<=0 )
         {
             if(ans==0)
+            {
                 fprintf(stderr,"Unknown string %s found\n",temp);
+                report_error("%s\n",__FUNCTION__);
+            }
             else
-                fprintf(stderr,"TSPLIB string %s not supported\n",temp);
-
-            report_error("%s\n",__FUNCTION__);
+            {
+                fprintf(stderr,"WARNING: TSPLIB string %s not supported\n",temp);
+            }
         }
 
 #if TSPLIB_DEBUG
