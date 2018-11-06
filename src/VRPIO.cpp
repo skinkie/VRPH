@@ -26,8 +26,7 @@ void VRP::read_TSPLIB_file(const char *node_file)
     char line[VRPH_STRING_SIZE];
     char *temp2;
     int max_id = -VRP_INFINITY;
-	int templen;
-
+	
     int ans;
     int x,y,i,j;
     float a, b;
@@ -57,15 +56,15 @@ void VRP::read_TSPLIB_file(const char *node_file)
 
         temp=strtok(line,":");
 
-		// Trim off the whitespace
-		temp2 = temp;
-		templen = strlen(temp2);
-		while (isspace(temp2[templen - 1])) temp2[--templen] = 0;
-		while (*temp2 && isspace(*temp2)) ++temp2, --templen;
-		memmove(temp, temp2, templen + 1);
+        // trim it (remove whitespace from the end and start)
+        while(*temp==' ') temp++;
+        temp2 = temp+strlen(temp)-1;
+        if (*temp2=='\n') temp2--;
+        while(temp2>temp && *temp2==' ') temp2--;
+        temp2[1] = '\0';
 
 #if TSPLIB_DEBUG
-        printf("line begins with %s\n",temp);
+        printf("line begins with \"%s\"\n",temp);
 #endif
 
         if( (ans=VRPCheckTSPLIBString(temp))<=0 )
@@ -171,7 +170,8 @@ void VRP::read_TSPLIB_file(const char *node_file)
             temp2=strtok(NULL," ");
             edge_weight_format=-1;
 
-            if(strncmp(temp2,"UPPER_ROW",9)==0)
+// these are equivalent for symmetric matrices
+            if(strncmp(temp2,"UPPER_ROW",9)==0 || strncmp(temp2,"LOWER_COL",9)==0)
             {
                 edge_weight_format=VRPH_UPPER_ROW;
             }
@@ -186,7 +186,8 @@ void VRP::read_TSPLIB_file(const char *node_file)
                 edge_weight_format=VRPH_FUNCTION;
 
             }
-            if(strncmp(temp2,"LOWER_ROW",9)==0)
+            // these are equivalent for symmetric matrices
+            if(strncmp(temp2,"LOWER_ROW",9)==0 || strncmp(temp2,"UPPER_COL",9)==0)
             {
                 edge_weight_format=VRPH_LOWER_ROW;
 
@@ -653,10 +654,10 @@ void VRP::read_TSPLIB_file(const char *node_file)
 
             // SERVICE_TIME
 
-            s =(double)(atof(strtok(NULL,"")));
+            s=(double)(atof(strtok(NULL,"")));
             fixed_service_time=s;
 #if TSPLIB_DEBUG
-            printf("Setting service time to %f for all nodes\n");
+            printf("Setting service time to %f for all nodes\n", fixed_service_time);
 #endif
             total_service_time=0;
             for(i=1;i<=num_nodes;i++)
