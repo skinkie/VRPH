@@ -23,7 +23,9 @@
 
 #define CW_DEBUG                0 + DEBUG_ALL
 #define CW_VERIFY               0 + VERIFY_ALL
-#define CLEAN_DEBUG             1 + DEBUG_ALL
+#ifndef CLEAN_DEBUG
+#define CLEAN_DEBUG             0 + DEBUG_ALL
+#endif
 
 #define Q_DEBUG                 0 + DEBUG_ALL
 #define Q_VERIFY                0 + VERIFY_ALL

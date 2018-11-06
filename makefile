@@ -1,6 +1,6 @@
 # Set compiler and flags
 CC=g++
-CFLAGS= -O3 -Wall
+CFLAGS= -g -DCLEAN_DEBUG -DLOCAL_SEARCH_STATISTICS
 #-Wmost
 LINKER_FLAGS= -static -static-libgcc -static-libstdc++
 
