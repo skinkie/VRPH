@@ -20,14 +20,13 @@ const char *SupportedTSPLIBStrings[]={
     // 8
     "NODE_COORD_TYPE","EOF","NODE_COORD_SECTION","DEPOT_SECTION",
     // 12
-    "DEMAND_SECTION","EDGE_WEIGHT_SECTION","SERVICE_TIME","cxd",
+    "DEMAND_SECTION","EDGE_WEIGHT_SECTION","SERVICE_TIME","VEHICLES",
     // 16
     "NUM_DAYS","SVC_TIME_SECTION","TIME_WINDOW_SECTION","COMMENT",
     // 20
     "DISPLAY_DATA_SECTION","TWOD_DISPLAY","DISPLAY_DATA_TYPE","NO_DISPLAY",
     // 24
     "COORD_DISPLAY"};
-
 
 // The lengths of the different supported TSPLIB strings
 const int SL[]={4,4,10,9,
@@ -43,15 +42,17 @@ const int NumSupportedTSPLIBStrings = 25;
 
 // Lists the various TSPLIB strings that are NOT supported
 const char *UnsupportedTSPLIBStrings[]=    {
-    "HCP","ATSP","SOP","TOUR","ATT","XRAY1","XRAY2","SPECIAL",
-    "LOWER_ROW",
-    "LOWER_DIAG_ROW","UPPER_COL","LOWER_COL","UPPER_DIAG_COL",
-    "LOWER_DIAG_COL","EDGE_LIST","ADJ_LIST","NO_COORDS",
-    "EDGE_DATA_SECTION",
-    "TOUR_SECTION", "VEHICLES"
+    "HCP","ATSP","SOP","TOUR",
+    // 4
+    "ATT","XRAY1","XRAY2","SPECIAL",
+    // 8
+    "UPPER_DIAG_COL","LOWER_DIAG_COL",
+    "EDGE_LIST","ADJ_LIST","NO_COORDS",
+    "EDGE_DATA_SECTION", "TOUR_SECTION"
 };
 // The number of unsupported TSPLIB strings
-const int NumUnsupportedTSPLIBStrings = 20;
+const int NumUnsupportedTSPLIBStrings = 15;
+
 
 int VRPGetDimension(char *filename)
 {
