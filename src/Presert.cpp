@@ -64,8 +64,8 @@ bool Presert::evaluate(class VRP *V, int u, int i, VRPMove *M)
     hu= V->d[h][u];
     hi= V->d[h][i];
     
-    u_loss = tu+uv-tv;
-    i_gain = ui+hu-hi;
+    u_loss = tu+uv-tv+V->nodes[i].service_time;
+    i_gain = ui+hu-hi+V->nodes[u].service_time;
 
     //savings = new - old;
     savings = (tv + hu + ui) - (tu + uv + hi);

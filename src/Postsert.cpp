@@ -63,8 +63,8 @@ bool Postsert::evaluate(class VRP *V, int u, int i, VRPMove *M)
     ij= V->d[i][j];
     ti= V->d[t][i];
 
-    u_loss = tu+uv-tv;
-    i_gain = iu+uj-ij;
+    u_loss = tu+uv-tv+V->nodes[i].service_time;
+    i_gain = iu+uj-ij+V->nodes[u].service_time;
     savings = i_gain-u_loss;
 
 

@@ -1230,13 +1230,13 @@ bool VRP::create_default_routes()
     for(i=1;i<=n;i++)
     {
         next_array[i] = -(i+1);
-        total_route_length+= (d[VRPH_DEPOT][i] + d[i][VRPH_DEPOT]);
+        total_route_length+= (d[VRPH_DEPOT][i] + nodes[i].service_time + d[i][VRPH_DEPOT]);
 
         route_num[i]=i;
         route[i].start=i;
         route[i].end=i;
         route[i].load= nodes[i].demand;
-        route[i].length= d[VRPH_DEPOT][i] + d[i][VRPH_DEPOT];
+        route[i].length= d[VRPH_DEPOT][i] + nodes[i].service_time + d[i][VRPH_DEPOT];
 
         
         // Check capacities
@@ -1355,13 +1355,13 @@ bool VRP::create_default_routes(int day)
     {
 
         next_array[i] = -(i+1);
-        total_route_length+= (d[VRPH_DEPOT][i] + d[i][VRPH_DEPOT]);
+        total_route_length+= (d[VRPH_DEPOT][i] + nodes[i].service_time + d[i][VRPH_DEPOT]);
 
         route_num[i]=i;
         route[i].start=i;
         route[i].end=i;
         route[i].load= nodes[i].demand;
-        route[i].length= d[VRPH_DEPOT][i] + d[i][VRPH_DEPOT];
+        route[i].length= d[VRPH_DEPOT][i] + nodes[i].service_time + d[i][VRPH_DEPOT];
         route[i].num_customers=1;
         routed[i]=true;    
 
@@ -1708,6 +1708,10 @@ bool VRP::eject_node(int j)
     ke= this->d[k][e];
 
     change=ce-(ck+ke);
+
+    // Make service time part of the total route length
+    change-=nodes[k].service_time;
+
     total_route_length+=change;
     route[k_route].length+=change;
     route[k_route].load-= nodes[k].demand;
@@ -1917,8 +1921,8 @@ bool VRP::insert_node(int j, int i, int k)
         this->next_array[j]=VRPH_DEPOT;
         this->pred_array[VRPH_DEPOT]=-j;
 
-        increase=this->d[0][j]+this->d[j][0];
-        this->total_number_of_routes++;
+	increase=this->d[0][j]+this->d[j][0] + nodes[j].service_time;
+	this->total_number_of_routes++;
         this->route_num[j]=this->total_number_of_routes;
         this->route[total_number_of_routes].length=increase;
         this->route[total_number_of_routes].load=nodes[j].demand;
@@ -1944,9 +1948,8 @@ bool VRP::insert_node(int j, int i, int k)
             report_error("%s\n",__FUNCTION__);
         }
 
-        increase=d[i][j]+d[j][k]-d[i][k];
+        increase=d[i][j]+d[j][k]-d[i][k]+nodes[j].service_time;
         r=route_num[i];
-
 
         num_nodes++;
         next_array[i]=j;
@@ -1965,7 +1968,7 @@ bool VRP::insert_node(int j, int i, int k)
     if(i==VRPH_DEPOT)
     {
 
-        increase=d[i][j]+d[j][k]-d[i][k];
+        increase=d[i][j]+d[j][k]-d[i][k]+nodes[j].service_time;
 
         r=route_num[k];
 
@@ -1993,7 +1996,7 @@ bool VRP::insert_node(int j, int i, int k)
     if(k==VRPH_DEPOT)
     {
 
-        increase=d[i][j]+d[j][k]-d[i][k];
+        increase=d[i][j]+d[j][k]-d[i][k]+nodes[j].service_time;
         r=route_num[i];
 
         int post=VRPH_ABS(next_array[i]);

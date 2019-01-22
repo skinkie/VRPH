@@ -122,8 +122,8 @@ bool VRP::verify_routes(const char *message)
 
     total_load+=nodes[current_node].demand;
     current_load+=nodes[current_node].demand;
-    len+=d[VRPH_DEPOT][current_node];
-    rlen+=d[VRPH_DEPOT][current_node];
+    len+=d[VRPH_DEPOT][current_node] + nodes[current_node].service_time;
+    rlen+=d[VRPH_DEPOT][current_node] + nodes[current_node].service_time;
     if(current_node!= dummy_index)
         num_in_route++;
 
@@ -142,8 +142,8 @@ bool VRP::verify_routes(const char *message)
         if(next_array[current_node]==VRPH_DEPOT)
         {
             // We're at the end of the Solution!
-            len+=d[current_node][VRPH_DEPOT];
-            rlen+=d[current_node][VRPH_DEPOT];
+            len+=d[current_node][VRPH_DEPOT] + nodes[VRPH_DEPOT].service_time;
+            rlen+=d[current_node][VRPH_DEPOT] + nodes[VRPH_DEPOT].service_time;
             current_route=route_num[current_node];
             tot_len+=rlen;
             if(num_in_route != route[current_route].num_customers)
@@ -198,8 +198,8 @@ bool VRP::verify_routes(const char *message)
                 
                 report_error(message);    
             }
-            len+=d[current_node][next_node];
-            rlen+=d[current_node][next_node];
+            len+=d[current_node][next_node] + nodes[next_node].service_time;
+            rlen+=d[current_node][next_node] + nodes[next_node].service_time;
 
 
             current_node=next_node;
@@ -215,9 +215,9 @@ bool VRP::verify_routes(const char *message)
         {
             // We must have a non-positive "next" node indicating the beginning of a new route
 
-            len+=d[current_node][VRPH_DEPOT];
+            len+=d[current_node][VRPH_DEPOT] + nodes[VRPH_DEPOT].service_time;
 
-            rlen+=d[current_node][VRPH_DEPOT];
+            rlen+=d[current_node][VRPH_DEPOT] + nodes[VRPH_DEPOT].service_time;
             tot_len+=rlen;
             current_route=route_num[current_node];
             current_end = route[current_route].end;
@@ -281,10 +281,10 @@ bool VRP::verify_routes(const char *message)
             // reset current_load to 0
             current_load=nodes[current_node].demand;
             //len+=nodes[current_node].depot_distance;
-            len+=d[VRPH_DEPOT][current_node];
+            len+=d[VRPH_DEPOT][current_node] + nodes[current_node].service_time;
             // reset rlen to 0
             //rlen=nodes[current_node].depot_distance;
-            rlen=d[VRPH_DEPOT][current_node];
+            rlen=d[VRPH_DEPOT][current_node] + nodes[current_node].service_time;
             if(current_node!= dummy_index)
                 num_in_route=1;
             else

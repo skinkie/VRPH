@@ -1236,7 +1236,7 @@ void VRP::import_solution_buff(int *sol_buff)
         route_num[VRPH_ABS(current)]=rnum;
         route[rnum].start=VRPH_ABS(current);
         load+=nodes[VRPH_ABS(current)].demand;
-        len+=d[VRPH_DEPOT][VRPH_ABS(current)];
+        len+=d[VRPH_DEPOT][VRPH_ABS(current)] + nodes[VRPH_ABS(current)].service_time;
         num_in_route++;
 
         // JHR: If there is only 1 
@@ -1255,7 +1255,7 @@ void VRP::import_solution_buff(int *sol_buff)
                 // end of route - current is the last node in this route
                 // next is the first node in the next route
 
-                len+=d[VRPH_ABS(current)][VRPH_DEPOT];
+                len+=d[VRPH_ABS(current)][VRPH_DEPOT] + nodes[VRPH_DEPOT].service_time;
 
                 route[rnum].end=VRPH_ABS(current);
                 route[rnum].length=len;
@@ -1277,13 +1277,13 @@ void VRP::import_solution_buff(int *sol_buff)
                 num_in_route=0;
                 len=0;
                 load=0;
-                len+=d[VRPH_DEPOT][VRPH_ABS(next)];
+                len+=d[VRPH_DEPOT][VRPH_ABS(next)] + nodes[VRPH_ABS(next)].service_time;
                 route_num[VRPH_ABS(next)]=rnum;
                 route[rnum].start=VRPH_ABS(next);
             }
             else
                 // Not at the end of a route
-                len+=d[VRPH_ABS(current)][VRPH_ABS(next)];
+                len+=d[VRPH_ABS(current)][VRPH_ABS(next)] + nodes[VRPH_ABS(next)].service_time;
 
 
 
@@ -1299,7 +1299,7 @@ void VRP::import_solution_buff(int *sol_buff)
         next_array[VRPH_ABS(next)]=VRPH_DEPOT;
         route_num[VRPH_ABS(next)]=rnum;
 
-        len+=d[VRPH_ABS(next)][VRPH_DEPOT];
+        len+=d[VRPH_ABS(next)][VRPH_DEPOT] + nodes[VRPH_DEPOT].service_time;
 
         route[rnum].end=VRPH_ABS(next);
         route[rnum].length=len;
