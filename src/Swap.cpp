@@ -18,8 +18,8 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
     ///
     /// Evaluates the move of swapping the positions of nodes u and i in 
     /// the current   For example, 
-    /// Current situation:    t-u-v and h-i-j 
-    /// New situation:        t-i-v and h-u-k        
+    /// Current situation:    t-u-v and h-i-j
+    /// New situation:        t-i-v and h-u-j
     ///
 
     if(V->routed[u]==false || V->routed[i]==false)
@@ -142,16 +142,16 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
         if(swap_type==2)
         {
             //h=v:  must have v=h=VRPH_DEPOT
-            u_change=(V->d[t][i]+V->d[v][i])-(V->d[t][u]+V->d[u][v]);
-            i_change=(V->d[h][u]+V->d[u][j])-(V->d[h][i]+V->d[i][j]);
+            u_change=(V->d[t][i]+V->d[v][i]+V->nodes[i].service_time)-(V->d[t][u]+V->d[u][v]+V->nodes[u].service_time);
+            i_change=(V->d[h][u]+V->d[u][j]+V->nodes[u].service_time)-(V->d[h][i]+V->d[i][j]+V->nodes[i].service_time);
 
         }
 
         if(swap_type==3)
         {
             //j=t=VRPH_DEPOT
-            u_change=(V->d[t][i]+V->d[v][i])-(V->d[t][u]+V->d[u][v]);
-            i_change=(V->d[h][u]+V->d[u][j])-(V->d[h][i]+V->d[i][j]);
+            u_change=(V->d[t][i]+V->d[v][i]+V->nodes[i].service_time)-(V->d[t][u]+V->d[u][v]+V->nodes[u].service_time);
+            i_change=(V->d[h][u]+V->d[u][j]+V->nodes[u].service_time)-(V->d[h][i]+V->d[i][j]+V->nodes[i].service_time);
 
         }
 
@@ -167,9 +167,9 @@ bool Swap::evaluate(class VRP *V, int u, int i, VRPMove *M)
         if(swap_type==5)
         {
             // Route i was h-i-j and is now h-u-j
-            i_change=(V->d[h][u]+V->d[u][j])-(V->d[h][i]+V->d[i][j]);
+            i_change=(V->d[h][u]+V->d[u][j]+V->nodes[u].service_time)-(V->d[h][i]+V->d[i][j]+V->nodes[i].service_time);
             // Route u was t-u-v and is now t-i-v
-            u_change=(V->d[t][i]+V->d[i][v])-(V->d[t][u]+V->d[u][v]);
+            u_change=(V->d[t][i]+V->d[i][v]+V->nodes[i].service_time)-(V->d[t][u]+V->d[u][v]+V->nodes[u].service_time);
 
         }
 
