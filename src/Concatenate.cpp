@@ -51,7 +51,7 @@ bool Concatenate::evaluate(VRP *V, int i_route, int j_route, int rules, VRPMove 
     j_load = V->route[j_route].load;
 
     new_length = j_length + i_length + V->d[j][i] - (V->d[VRPH_DEPOT][i] +
-        V->d[j][VRPH_DEPOT]);
+        V->d[j][VRPH_DEPOT] + V->nodes[VRPH_DEPOT].service_time);
         
     new_load = i_load + j_load;
 
