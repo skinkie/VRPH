@@ -32,7 +32,7 @@ bool CrossExchange::route_search(class VRP *V, int r1, int r2, int rules)
 
     int start_1, end_1, start_2, end_2;
     int i1, i2, k1, k2; // Route r1 nodes
-    int j1, j2, l1, l2;    // Route r2 nodes
+    int j1, j2, l1, l2; // Route r2 nodes
 
     VRPMove M, BestM;
 
@@ -257,7 +257,7 @@ bool CrossExchange::evaluate(class VRP *V, int i1, int i2, int k1, int k2, int j
     double savings;
 
     // savings = new - old
-
+    // the service times of (j2 + i2 + l2 + k2) - (i2 + j2 + k2 + l2) cancel out
     M->savings = savings = (V->d[i1][j2]+V->d[j1][i2]+V->d[k1][l2]+V->d[l1][k2]) - 
         (V->d[i1][i2]+V->d[j1][j2]+V->d[k1][k2]+V->d[l1][l2]);
 
@@ -303,12 +303,12 @@ bool CrossExchange::evaluate(class VRP *V, int i1, int i2, int k1, int k2, int j
     V->get_segment_info(j2, l1, &S_j2_l1);
     V->get_segment_info(k2, VRPH_DEPOT, &S_k2_0);
 
-    new_i_len = S_0_i1.len + V->d[i1][j2] + S_j2_l1.len + V->d[l1][k2] + S_k2_0.len;
+    new_i_len = S_0_i1.len + V->d[i1][j2] + S_j2_l1.len + V->d[l1][k2] + S_k2_0.len + V->nodes[j2].service_time + V->nodes[k2].service_time; // TODO: check this output, is service_time double or not?
 
     if(new_i_len>V->max_route_length)
         return false;
 
-    new_j_len =  savings + V->route[i_route].length + V->route[j_route].length - new_i_len;
+    new_j_len = savings + V->route[i_route].length + V->route[j_route].length - new_i_len;
 
     if(new_j_len>V->max_route_length)
         return false;

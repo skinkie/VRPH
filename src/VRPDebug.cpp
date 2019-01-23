@@ -198,8 +198,8 @@ bool VRP::verify_routes(const char *message)
                 
                 report_error(message);    
             }
-            len+=d[current_node][next_node] + nodes[next_node].service_time;
-            rlen+=d[current_node][next_node] + nodes[next_node].service_time;
+            len+=d[current_node][next_node] + nodes[current_node].service_time;
+            rlen+=d[current_node][next_node] + nodes[current_node].service_time;
 
 
             current_node=next_node;

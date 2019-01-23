@@ -16,7 +16,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
     ///
     /// Evaluates the move of taking the string between u and v (i.e. t-u-j-k-l-m-v-w)
     /// and inserting between a and b (assumed to currently be an existing edge), 
-    /// yielding t-w & a-u-j-k-l-m-b
+    /// yielding t-w & a-u-j-k-l-m-v-b
     ///
 
     // First make sure u or v is not the VRPH_DEPOT
@@ -55,6 +55,7 @@ bool MoveString::evaluate(VRP *V, int a, int b, int u, int v, VRPMove *M)
     tw= V->d[t][w];
 
     //savings=new-old
+    // service_time (a + u + v + b + t + w) - (a + b + t + u + v + w) cancel out
     savings = (au+vb+tw) - (ab+tu+vw);
 
 

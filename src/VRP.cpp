@@ -703,8 +703,8 @@ void VRP::refresh_routes()
 
 
     int i, n, cnt;
-    double len=0;
-    double rlen=0;
+    double len=0; // total length
+    double rlen=0; // route length
     double tot_len=0;
     int next_node;
     int current_node, current_route, route_start, current_start, current_end;
@@ -760,8 +760,8 @@ void VRP::refresh_routes()
             // Next node is somewhere in the middle of a route        
 
             next_node = next_array[current_node];
-            len+=d[current_node][next_node];
-            rlen+=d[current_node][next_node];
+            len+=d[current_node][next_node] + nodes[current_node].service_time;
+            rlen+=d[current_node][next_node] + nodes[current_node].service_time;
             current_node=next_node;
             total_load+=nodes[current_node].demand;
             current_load+=nodes[current_node].demand;
@@ -796,8 +796,8 @@ void VRP::refresh_routes()
             total_load+=nodes[current_node].demand;
             // reset current_load to 0
             current_load=nodes[current_node].demand;
-            len+=d[VRPH_DEPOT][current_node];
-            rlen=d[VRPH_DEPOT][current_node];
+            len+=d[VRPH_DEPOT][current_node] + nodes[current_node].service_time;
+            rlen=d[VRPH_DEPOT][current_node] + nodes[current_node].service_time;
             cnt++;
         }
     }
@@ -857,7 +857,7 @@ bool VRP::get_segment_info(int a, int b, struct VRPSegment *S)
     /// of the route between nodes a and b.  Assumes that a is before b
     /// in the route - this is not checked!
     /// Example:  a-i-j-b has
-    /// length: d(a,i)+d(i,j)+d(j,b)
+    /// length: d(a,i)+d(i,j)+d(j,b)+a.service_time+i.service_time+j.service_time+b.service_time
     /// load:   a + i + j + b
     /// #:      4
     /// 
@@ -868,7 +868,7 @@ bool VRP::get_segment_info(int a, int b, struct VRPSegment *S)
         // Degenerate case...
         S->segment_start=b;
         S->segment_end=a;
-        S->len=0;  //nodes[a].service_time??;
+        S->len=0 + nodes[a].service_time;
         S->load=nodes[a].demand;
         S->num_custs=1;
         return true;
@@ -913,7 +913,7 @@ bool VRP::get_segment_info(int a, int b, struct VRPSegment *S)
     while(current_node != S->segment_end)
     {
         next_node = VRPH_MAX(next_array[current_node],0);
-        S->len+=d[current_node][next_node];
+        S->len+=d[current_node][next_node] + nodes[next_node].service_time;
         current_node=next_node;        
         S->load+=nodes[next_node].demand;
         if(current_node!= dummy_index)
